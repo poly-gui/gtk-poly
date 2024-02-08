@@ -1,0 +1,3 @@
+[submodule "lib/nanopack"]
+	path = lib/nanopack
+	url = https://github.com/poly-gui/nanopack
