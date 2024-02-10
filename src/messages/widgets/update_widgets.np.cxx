@@ -5,36 +5,36 @@
 
 #include "update_widgets.np.hxx"
 
-UpdateWidgets::UpdateWidgets(std::vector<UpdateWidget> updates)
+Poly::Message::UpdateWidgets::UpdateWidgets(std::vector<UpdateWidget> updates)
     : updates(std::move(updates)) {}
 
-UpdateWidgets::UpdateWidgets(const NanoPack::Reader &reader, int &bytes_read) {
+Poly::Message::UpdateWidgets::UpdateWidgets(const NanoPack::Reader &reader,
+                                            int &bytes_read) {
   const auto begin = reader.begin();
   int ptr = 8;
 
-  const int32_t updates_byte_size = reader.read_field_size(0);
   const int32_t updates_vec_size = reader.read_int32(ptr);
   ptr += 4;
-  std::vector<UpdateWidget> updates(updates_vec_size);
+  std::vector<UpdateWidget> updates;
+  updates.reserve(updates_vec_size);
   for (int i = 0; i < updates_vec_size; i++) {
     int i_item_bytes_read = 0;
     UpdateWidget i_item(begin + ptr, i_item_bytes_read);
     ptr += i_item_bytes_read;
-    updates[i] = i_item;
+    updates.emplace_back(std::move(i_item));
   }
-  this->updates = updates;
-  ptr += updates_byte_size;
+  this->updates = std::move(updates);
 
   bytes_read = ptr;
 }
 
-UpdateWidgets::UpdateWidgets(std::vector<uint8_t>::const_iterator begin,
-                             int &bytes_read)
+Poly::Message::UpdateWidgets::UpdateWidgets(
+    std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : UpdateWidgets(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t UpdateWidgets::type_id() const { return TYPE_ID; }
+int32_t Poly::Message::UpdateWidgets::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> UpdateWidgets::data() const {
+std::vector<uint8_t> Poly::Message::UpdateWidgets::data() const {
   std::vector<uint8_t> buf(8);
   NanoPack::Writer writer(&buf);
 

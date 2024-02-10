@@ -3,27 +3,35 @@
 #ifndef CENTER_NP_HXX
 #define CENTER_NP_HXX
 
+#include <memory>
 #include <nanopack/reader.hxx>
 #include <vector>
 
+#include "make_widget.np.hxx"
 #include "widget.np.hxx"
+
+namespace Poly::Message {
 
 struct Center : Widget {
   static constexpr int32_t TYPE_ID = 102;
 
-  Widget child;
+  std::unique_ptr<Widget> child;
 
   Center() = default;
 
-  Center(std::optional<int32_t> tag, Widget child);
+  Center(std::optional<int32_t> tag, std::unique_ptr<Widget> child);
 
   Center(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 
   Center(const NanoPack::Reader &reader, int &bytes_read);
 
+  [[nodiscard]] Widget &get_child() const;
+
   [[nodiscard]] int32_t type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

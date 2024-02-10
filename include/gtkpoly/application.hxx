@@ -1,11 +1,12 @@
 #ifndef APPLICATION_HXX
 #define APPLICATION_HXX
 
-#include <gtkmm/application.h>
 #include <filesystem>
+#include <gtkmm/application.h>
 
-#include "../../src/portable_layer.hxx"
 #include "../../src/messages/create_window.np.hxx"
+#include "../../src/messages/widgets/create_widget.np.hxx"
+#include "../../src/portable_layer.hxx"
 #include "window.hxx"
 
 namespace Poly {
@@ -26,7 +27,9 @@ class Application : public Gtk::Application {
 
 	void read_incoming_messages();
 
-	void create_window(const CreateWindow *msg);
+	void create_window(const Message::CreateWindow *msg);
+
+	void create_widget(Message::CreateWidget *msg) const;
 
 	void cleanup();
 

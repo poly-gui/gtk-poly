@@ -8,6 +8,8 @@
 #include <nanopack/reader.hxx>
 #include <vector>
 
+namespace Poly::Message {
+
 struct InvokeCallback : NanoPack::Message {
   static constexpr int32_t TYPE_ID = 2;
 
@@ -26,5 +28,7 @@ struct InvokeCallback : NanoPack::Message {
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

@@ -5,10 +5,12 @@
 
 #include "center.np.hxx"
 
-Center::Center(std::optional<int32_t> tag, Widget child)
-    : Widget(tag), child(child) {}
+Poly::Message::Center::Center(std::optional<int32_t> tag,
+                              std::unique_ptr<Widget> child)
+    : Widget(tag), child(std::move(child)) {}
 
-Center::Center(const NanoPack::Reader &reader, int &bytes_read) : Widget() {
+Poly::Message::Center::Center(const NanoPack::Reader &reader, int &bytes_read)
+    : Widget() {
   const auto begin = reader.begin();
   int ptr = 12;
 
@@ -21,18 +23,23 @@ Center::Center(const NanoPack::Reader &reader, int &bytes_read) : Widget() {
   }
 
   int child_bytes_read = 0;
-  child = Widget(begin + ptr, child_bytes_read);
+  child = std::move(make_widget(begin + ptr, child_bytes_read));
   ptr += child_bytes_read;
 
   bytes_read = ptr;
 }
 
-Center::Center(std::vector<uint8_t>::const_iterator begin, int &bytes_read)
+Poly::Message::Center::Center(std::vector<uint8_t>::const_iterator begin,
+                              int &bytes_read)
     : Center(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Center::type_id() const { return TYPE_ID; }
+Poly::Message::Widget &Poly::Message::Center::get_child() const {
+  return *child;
+}
 
-std::vector<uint8_t> Center::data() const {
+int32_t Poly::Message::Center::type_id() const { return TYPE_ID; }
+
+std::vector<uint8_t> Poly::Message::Center::data() const {
   std::vector<uint8_t> buf(12);
   NanoPack::Writer writer(&buf);
 
@@ -46,7 +53,7 @@ std::vector<uint8_t> Center::data() const {
     writer.write_field_size(0, -1);
   }
 
-  const std::vector<uint8_t> child_data = child.data();
+  const std::vector<uint8_t> child_data = child->data();
   writer.append_bytes(child_data);
   writer.write_field_size(1, child_data.size());
 

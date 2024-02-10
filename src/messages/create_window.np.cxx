@@ -5,12 +5,15 @@
 
 #include "create_window.np.hxx"
 
-CreateWindow::CreateWindow(std::string title, std::string description,
-                           int32_t width, int32_t height, std::string tag)
+Poly::Message::CreateWindow::CreateWindow(std::string title,
+                                          std::string description,
+                                          int32_t width, int32_t height,
+                                          std::string tag)
     : title(std::move(title)), description(std::move(description)),
       width(width), height(height), tag(std::move(tag)) {}
 
-CreateWindow::CreateWindow(const NanoPack::Reader &reader, int &bytes_read) {
+Poly::Message::CreateWindow::CreateWindow(const NanoPack::Reader &reader,
+                                          int &bytes_read) {
   const auto begin = reader.begin();
   int ptr = 24;
 
@@ -37,13 +40,13 @@ CreateWindow::CreateWindow(const NanoPack::Reader &reader, int &bytes_read) {
   bytes_read = ptr;
 }
 
-CreateWindow::CreateWindow(std::vector<uint8_t>::const_iterator begin,
-                           int &bytes_read)
+Poly::Message::CreateWindow::CreateWindow(
+    std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : CreateWindow(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t CreateWindow::type_id() const { return TYPE_ID; }
+int32_t Poly::Message::CreateWindow::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> CreateWindow::data() const {
+std::vector<uint8_t> Poly::Message::CreateWindow::data() const {
   std::vector<uint8_t> buf(24);
   NanoPack::Writer writer(&buf);
 

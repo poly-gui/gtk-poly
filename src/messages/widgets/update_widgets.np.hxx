@@ -9,6 +9,8 @@
 
 #include "update_widget.np.hxx"
 
+namespace Poly::Message {
+
 struct UpdateWidgets : NanoPack::Message {
   static constexpr int32_t TYPE_ID = 4;
 
@@ -26,5 +28,7 @@ struct UpdateWidgets : NanoPack::Message {
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

@@ -8,6 +8,8 @@
 #include <optional>
 #include <vector>
 
+namespace Poly::Message {
+
 struct Widget : NanoPack::Message {
   static constexpr int32_t TYPE_ID = 100;
 
@@ -25,5 +27,7 @@ struct Widget : NanoPack::Message {
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

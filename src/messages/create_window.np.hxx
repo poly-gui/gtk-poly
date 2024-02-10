@@ -8,6 +8,8 @@
 #include <string>
 #include <vector>
 
+namespace Poly::Message {
+
 struct CreateWindow : NanoPack::Message {
   static constexpr int32_t TYPE_ID = 10;
 
@@ -30,5 +32,7 @@ struct CreateWindow : NanoPack::Message {
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

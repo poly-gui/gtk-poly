@@ -5,10 +5,11 @@
 
 #include "text.np.hxx"
 
-Text::Text(std::optional<int32_t> tag, std::string content)
+Poly::Message::Text::Text(std::optional<int32_t> tag, std::string content)
     : Widget(tag), content(std::move(content)) {}
 
-Text::Text(const NanoPack::Reader &reader, int &bytes_read) : Widget() {
+Poly::Message::Text::Text(const NanoPack::Reader &reader, int &bytes_read)
+    : Widget() {
   const auto begin = reader.begin();
   int ptr = 12;
 
@@ -27,12 +28,13 @@ Text::Text(const NanoPack::Reader &reader, int &bytes_read) : Widget() {
   bytes_read = ptr;
 }
 
-Text::Text(std::vector<uint8_t>::const_iterator begin, int &bytes_read)
+Poly::Message::Text::Text(std::vector<uint8_t>::const_iterator begin,
+                          int &bytes_read)
     : Text(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Text::type_id() const { return TYPE_ID; }
+int32_t Poly::Message::Text::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Text::data() const {
+std::vector<uint8_t> Poly::Message::Text::data() const {
   std::vector<uint8_t> buf(12);
   NanoPack::Writer writer(&buf);
 

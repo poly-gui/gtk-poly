@@ -7,7 +7,10 @@
 #include <vector>
 
 #include "alignment.np.hxx"
+#include "make_widget.np.hxx"
 #include "widget.np.hxx"
+
+namespace Poly::Message {
 
 struct Column : Widget {
   static constexpr int32_t TYPE_ID = 103;
@@ -16,13 +19,14 @@ struct Column : Widget {
   double height;
   Alignment horizontal_alignment;
   Alignment vertical_alignment;
-  std::vector<Widget> children;
+  std::vector<std::unique_ptr<Widget>> children;
 
   Column() = default;
 
   Column(std::optional<int32_t> tag, double width, double height,
          const Alignment &horizontal_alignment,
-         const Alignment &vertical_alignment, std::vector<Widget> children);
+         const Alignment &vertical_alignment,
+         std::vector<std::unique_ptr<Widget>> children);
 
   Column(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 
@@ -32,5 +36,7 @@ struct Column : Widget {
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

@@ -3,30 +3,38 @@
 #ifndef CREATE_WIDGET_NP_HXX
 #define CREATE_WIDGET_NP_HXX
 
+#include <memory>
 #include <nanopack/message.hxx>
 #include <nanopack/reader.hxx>
 #include <string>
 #include <vector>
 
+#include "make_widget.np.hxx"
 #include "widget.np.hxx"
+
+namespace Poly::Message {
 
 struct CreateWidget : NanoPack::Message {
   static constexpr int32_t TYPE_ID = 20;
 
-  Widget widget;
+  std::unique_ptr<Widget> widget;
   std::string window_tag;
 
   CreateWidget() = default;
 
-  CreateWidget(Widget widget, std::string window_tag);
+  CreateWidget(std::unique_ptr<Widget> widget, std::string window_tag);
 
   CreateWidget(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 
   CreateWidget(const NanoPack::Reader &reader, int &bytes_read);
 
+  [[nodiscard]] Widget &get_widget() const;
+
   [[nodiscard]] int32_t type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif

@@ -5,11 +5,12 @@
 
 #include "invoke_callback.np.hxx"
 
-InvokeCallback::InvokeCallback(int32_t handle, NanoPack::Any args)
+Poly::Message::InvokeCallback::InvokeCallback(int32_t handle,
+                                              NanoPack::Any args)
     : handle(handle), args(std::move(args)) {}
 
-InvokeCallback::InvokeCallback(const NanoPack::Reader &reader,
-                               int &bytes_read) {
+Poly::Message::InvokeCallback::InvokeCallback(const NanoPack::Reader &reader,
+                                              int &bytes_read) {
   const auto begin = reader.begin();
   int ptr = 12;
 
@@ -24,13 +25,13 @@ InvokeCallback::InvokeCallback(const NanoPack::Reader &reader,
   bytes_read = ptr;
 }
 
-InvokeCallback::InvokeCallback(std::vector<uint8_t>::const_iterator begin,
-                               int &bytes_read)
+Poly::Message::InvokeCallback::InvokeCallback(
+    std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : InvokeCallback(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t InvokeCallback::type_id() const { return TYPE_ID; }
+int32_t Poly::Message::InvokeCallback::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> InvokeCallback::data() const {
+std::vector<uint8_t> Poly::Message::InvokeCallback::data() const {
   std::vector<uint8_t> buf(12);
   NanoPack::Writer writer(&buf);
 

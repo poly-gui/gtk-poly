@@ -6,7 +6,11 @@
 #include "widget.np.hxx"
 #include <memory>
 
+namespace Poly::Message {
+
 std::unique_ptr<Widget> make_widget(std::vector<uint8_t>::const_iterator begin,
                                     int &bytes_read);
+
+} // namespace Poly::Message
 
 #endif

@@ -5,9 +5,10 @@
 
 #include "widget.np.hxx"
 
-Widget::Widget(std::optional<int32_t> tag) : tag(std::move(tag)) {}
+Poly::Message::Widget::Widget(std::optional<int32_t> tag)
+    : tag(std::move(tag)) {}
 
-Widget::Widget(const NanoPack::Reader &reader, int &bytes_read) {
+Poly::Message::Widget::Widget(const NanoPack::Reader &reader, int &bytes_read) {
   const auto begin = reader.begin();
   int ptr = 8;
 
@@ -22,12 +23,13 @@ Widget::Widget(const NanoPack::Reader &reader, int &bytes_read) {
   bytes_read = ptr;
 }
 
-Widget::Widget(std::vector<uint8_t>::const_iterator begin, int &bytes_read)
+Poly::Message::Widget::Widget(std::vector<uint8_t>::const_iterator begin,
+                              int &bytes_read)
     : Widget(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Widget::type_id() const { return TYPE_ID; }
+int32_t Poly::Message::Widget::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Widget::data() const {
+std::vector<uint8_t> Poly::Message::Widget::data() const {
   std::vector<uint8_t> buf(8);
   NanoPack::Writer writer(&buf);
 

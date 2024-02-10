@@ -7,6 +7,6 @@ Poly::WindowManager::new_window_with_tag(const std::string &tag) {
 	return window;
 }
 
-std::shared_ptr<Poly::Window> Poly::WindowManager::find_window_with_tag(const std::string &tag) {
+std::shared_ptr<Poly::Window> Poly::WindowManager::find_window_with_tag(const std::string &tag) const {
 	return windows.find(tag)->second;
 }

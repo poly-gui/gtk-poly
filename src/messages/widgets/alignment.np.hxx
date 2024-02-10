@@ -6,6 +6,8 @@
 #include <array>
 #include <stdexcept>
 
+namespace Poly::Message {
+
 class Alignment {
 public:
   enum AlignmentMember {
@@ -70,5 +72,7 @@ public:
 
   explicit operator bool() const = delete;
 };
+
+} // namespace Poly::Message
 
 #endif

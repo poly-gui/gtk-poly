@@ -19,7 +19,7 @@ private:
 public:
 	std::shared_ptr<Window> new_window_with_tag(const std::string &tag);
 
-	std::shared_ptr<Window> find_window_with_tag(const std::string &tag);
+	std::shared_ptr<Window> find_window_with_tag(const std::string &tag) const;
 };
 
 }

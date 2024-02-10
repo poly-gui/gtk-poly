@@ -5,15 +5,17 @@
 
 #include "column.np.hxx"
 
-Column::Column(std::optional<int32_t> tag, double width, double height,
-               const Alignment &horizontal_alignment,
-               const Alignment &vertical_alignment,
-               std::vector<Widget> children)
+Poly::Message::Column::Column(std::optional<int32_t> tag, double width,
+                              double height,
+                              const Alignment &horizontal_alignment,
+                              const Alignment &vertical_alignment,
+                              std::vector<std::unique_ptr<Widget>> children)
     : Widget(tag), width(width), height(height),
       horizontal_alignment(horizontal_alignment),
       vertical_alignment(vertical_alignment), children(std::move(children)) {}
 
-Column::Column(const NanoPack::Reader &reader, int &bytes_read) : Widget() {
+Poly::Message::Column::Column(const NanoPack::Reader &reader, int &bytes_read)
+    : Widget() {
   const auto begin = reader.begin();
   int ptr = 28;
 
@@ -41,28 +43,29 @@ Column::Column(const NanoPack::Reader &reader, int &bytes_read) : Widget() {
   ptr += 1;
   vertical_alignment = Alignment(vertical_alignment_raw_value);
 
-  const int32_t children_byte_size = reader.read_field_size(5);
   const int32_t children_vec_size = reader.read_int32(ptr);
   ptr += 4;
-  std::vector<Widget> children(children_vec_size);
+  std::vector<std::unique_ptr<Widget>> children;
+  children.reserve(children_vec_size);
   for (int i = 0; i < children_vec_size; i++) {
     int i_item_bytes_read = 0;
-    Widget i_item(begin + ptr, i_item_bytes_read);
+    std::unique_ptr i_item =
+        std::move(make_widget(begin + ptr, i_item_bytes_read));
     ptr += i_item_bytes_read;
-    children[i] = i_item;
+    children.emplace_back(std::move(i_item));
   }
-  this->children = children;
-  ptr += children_byte_size;
+  this->children = std::move(children);
 
   bytes_read = ptr;
 }
 
-Column::Column(std::vector<uint8_t>::const_iterator begin, int &bytes_read)
+Poly::Message::Column::Column(std::vector<uint8_t>::const_iterator begin,
+                              int &bytes_read)
     : Column(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Column::type_id() const { return TYPE_ID; }
+int32_t Poly::Message::Column::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Column::data() const {
+std::vector<uint8_t> Poly::Message::Column::data() const {
   std::vector<uint8_t> buf(28);
   NanoPack::Writer writer(&buf);
 
@@ -92,7 +95,7 @@ std::vector<uint8_t> Column::data() const {
   writer.append_int32(children_vec_size);
   int32_t children_byte_size = sizeof(int32_t);
   for (auto &i : children) {
-    const std::vector<uint8_t> i_data = i.data();
+    const std::vector<uint8_t> i_data = i->data();
     writer.append_bytes(i_data);
     children_byte_size += i_data.size();
   }

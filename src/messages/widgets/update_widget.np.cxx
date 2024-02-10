@@ -5,10 +5,12 @@
 
 #include "update_widget.np.hxx"
 
-UpdateWidget::UpdateWidget(int32_t tag, Widget widget)
-    : tag(tag), widget(widget) {}
+Poly::Message::UpdateWidget::UpdateWidget(int32_t tag,
+                                          std::unique_ptr<Widget> widget)
+    : tag(tag), widget(std::move(widget)) {}
 
-UpdateWidget::UpdateWidget(const NanoPack::Reader &reader, int &bytes_read) {
+Poly::Message::UpdateWidget::UpdateWidget(const NanoPack::Reader &reader,
+                                          int &bytes_read) {
   const auto begin = reader.begin();
   int ptr = 12;
 
@@ -17,19 +19,23 @@ UpdateWidget::UpdateWidget(const NanoPack::Reader &reader, int &bytes_read) {
   this->tag = tag;
 
   int widget_bytes_read = 0;
-  widget = Widget(begin + ptr, widget_bytes_read);
+  widget = std::move(make_widget(begin + ptr, widget_bytes_read));
   ptr += widget_bytes_read;
 
   bytes_read = ptr;
 }
 
-UpdateWidget::UpdateWidget(std::vector<uint8_t>::const_iterator begin,
-                           int &bytes_read)
+Poly::Message::UpdateWidget::UpdateWidget(
+    std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : UpdateWidget(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t UpdateWidget::type_id() const { return TYPE_ID; }
+Poly::Message::Widget &Poly::Message::UpdateWidget::get_widget() const {
+  return *widget;
+}
 
-std::vector<uint8_t> UpdateWidget::data() const {
+int32_t Poly::Message::UpdateWidget::type_id() const { return TYPE_ID; }
+
+std::vector<uint8_t> Poly::Message::UpdateWidget::data() const {
   std::vector<uint8_t> buf(12);
   NanoPack::Writer writer(&buf);
 
@@ -38,7 +44,7 @@ std::vector<uint8_t> UpdateWidget::data() const {
   writer.write_field_size(0, 4);
   writer.append_int32(tag);
 
-  const std::vector<uint8_t> widget_data = widget.data();
+  const std::vector<uint8_t> widget_data = widget->data();
   writer.append_bytes(widget_data);
   writer.write_field_size(1, widget_data.size());
 

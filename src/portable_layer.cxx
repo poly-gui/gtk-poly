@@ -120,7 +120,7 @@ void Poly::PortableLayer::read_portable_layer_stdout() {
 void Poly::PortableLayer::handle_message(std::vector<uint8_t> msg_bytes) {
 	int bytes_read;
 	std::unique_ptr<NanoPack::Message> message =
-		make_nanopack_message(msg_bytes.begin(), bytes_read);
+		Message::make_nanopack_message(msg_bytes.begin(), bytes_read);
 	if (message_handler != nullptr) {
 		message_handler(std::move(message));
 	}

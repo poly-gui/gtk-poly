@@ -28,7 +28,10 @@ add_library(gtkpoly STATIC
         src/window/window.cxx
         src/window/window_manager.cxx
         src/portable_layer.cxx
-        src/portable_layer.hxx
+        src/widget/widget_factory.cxx
+        src/widget/text.cxx
+        src/widget/column.cxx
+        src/widget/center.cxx
 )
 target_link_libraries(gtkpoly nanopack)
 

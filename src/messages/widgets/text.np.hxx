@@ -7,7 +7,10 @@
 #include <string>
 #include <vector>
 
+#include "make_widget.np.hxx"
 #include "widget.np.hxx"
+
+namespace Poly::Message {
 
 struct Text : Widget {
   static constexpr int32_t TYPE_ID = 101;
@@ -26,5 +29,7 @@ struct Text : Widget {
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 };
+
+} // namespace Poly::Message
 
 #endif
