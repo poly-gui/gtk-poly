@@ -1,23 +1,39 @@
 #include "messages/create_window.np.hxx"
 #include "messages/widgets/create_widget.np.hxx"
+#include "messages/widgets/update_widget.np.hxx"
 #include "widget/widget_factory.hxx"
+#include "widget/widget_updater.hxx"
 
 #include <glibmm.h>
 #include <gtkpoly/application.hxx>
+#include <iostream>
 #include <memory>
 #include <nanopack/message.hxx>
 
-Poly::Application::Application(const ApplicationConfig &config)
+Poly::Application::Application(Private, const ApplicationConfig &config)
 	: Gtk::Application(config.application_id, config.flags), config(config),
-	  portable_layer(config.app_dir_path / "bundle") {
-	portable_layer.on_message(
+	  _portable_layer(config.app_dir_path / "bundle") {
+	_portable_layer.on_message(
 		[this](std::unique_ptr<NanoPack::Message> message) {
 			handle_message(std::move(message));
 		});
 }
 
+std::shared_ptr<Poly::Application>
+Poly::Application::create(const ApplicationConfig &config) {
+	return std::make_shared<Application>(Private{}, config);
+}
+
+Poly::PortableLayer &Poly::Application::portable_layer() {
+	return _portable_layer;
+}
+
+Poly::WidgetRegistry &Poly::Application::widget_registry() {
+	return _widget_registry;
+}
+
 int Poly::Application::start() {
-	portable_layer.spawn();
+	_portable_layer.spawn();
 	const int status = run();
 	cleanup();
 	return status;
@@ -30,23 +46,30 @@ void Poly::Application::cleanup() {}
 void Poly::Application::handle_message(std::unique_ptr<NanoPack::Message> msg) {
 	switch (msg->type_id()) {
 	case Message::CreateWindow::TYPE_ID:
-		create_window(static_cast<Message::CreateWindow *>(msg.get()));
+		create_window(std::move(msg));
 		break;
 
 	case Message::CreateWidget::TYPE_ID:
-		create_widget(static_cast<Message::CreateWidget *>(msg.get()));
+		create_widget(std::move(msg));
 		break;
+
+	case Message::UpdateWidget::TYPE_ID:
+		update_widget(std::move(msg));
 
 	default:
 		break;
 	}
 }
 
-void Poly::Application::create_window(const Message::CreateWindow *msg) {
+void Poly::Application::create_window(std::unique_ptr<NanoPack::Message> msg) {
+	const auto create_window_msg =
+		static_cast<Message::CreateWindow *>(msg.get());
+
 	const std::shared_ptr<Window> window =
-		window_manager.new_window_with_tag(msg->tag);
-	window->set_title(msg->title);
-	window->set_default_size(msg->width, msg->height);
+		window_manager.new_window_with_tag(create_window_msg->tag);
+	window->set_title(create_window_msg->title);
+	window->set_default_size(create_window_msg->width,
+							 create_window_msg->height);
 
 	Glib::signal_idle().connect_once([this, window] {
 		add_window(*window);
@@ -54,13 +77,37 @@ void Poly::Application::create_window(const Message::CreateWindow *msg) {
 	});
 }
 
-void Poly::Application::create_widget(Message::CreateWidget *msg) const {
+void Poly::Application::create_widget(std::unique_ptr<NanoPack::Message> msg) {
+	const auto create_widget_msg =
+		static_cast<Message::CreateWidget *>(msg.get());
+
 	const std::shared_ptr<Window> window =
-		window_manager.find_window_with_tag(msg->window_tag);
+		window_manager.find_window_with_tag(create_widget_msg->window_tag);
 	if (window == nullptr)
 		return;
 
-	const std::shared_ptr widget = make_widget(msg->get_widget(), *this);
-	window->set_child(*widget);
+	std::shared_ptr widget =
+		make_widget(create_widget_msg->get_widget(), shared_from_this());
 	widget->show();
+	window->set_child(std::move(widget));
+}
+
+void Poly::Application::update_widget(std::unique_ptr<NanoPack::Message> msg) {
+	const auto update_widget_msg =
+		static_cast<Message::UpdateWidget *>(msg.release());
+
+	std::shared_ptr<Gtk::Widget> widget =
+		_widget_registry.find_widget(update_widget_msg->tag);
+	if (widget == nullptr) {
+#ifdef DEBUG
+		std::cout << "[WARNING] requested to update widget with tag "
+				  << update_widget_msg->tag << " but it doesn't exist.";
+#endif
+		return;
+	}
+
+	Glib::signal_idle().connect_once([widget = std::move(widget), msg = update_widget_msg] {
+		Poly::update_widget(*widget, msg->get_widget());
+		delete msg;
+	});
 }

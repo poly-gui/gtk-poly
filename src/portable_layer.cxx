@@ -17,11 +17,16 @@ Poly::PortableLayer::PortableLayer(std::filesystem::path bin_path)
 	  error_handler(nullptr) {
 }
 
+void Poly::PortableLayer::send_message(const NanoPack::Message &message) const {
+	std::vector<uint8_t> msg_bytes = message.data_with_length_prefix();
+	write(stdin_handle, msg_bytes.data(), msg_bytes.size());
+}
+
 void Poly::PortableLayer::on_message(const MessageHandler &handler) {
 	message_handler = handler;
 }
 
-void Poly::PortableLayer::on_error(const ErrorHandler handler) {
+void Poly::PortableLayer::on_error(const ErrorHandler &handler) {
 	error_handler = handler;
 }
 

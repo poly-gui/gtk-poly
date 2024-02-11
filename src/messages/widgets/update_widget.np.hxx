@@ -32,6 +32,8 @@ struct UpdateWidget : NanoPack::Message {
   [[nodiscard]] int32_t type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
+
+  [[nodiscard]] std::vector<uint8_t> data_with_length_prefix() const override;
 };
 
 } // namespace Poly::Message

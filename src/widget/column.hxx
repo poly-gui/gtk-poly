@@ -14,20 +14,21 @@
 namespace Poly {
 
 class Column final : public Gtk::Box {
-  private:
-	std::vector<std::unique_ptr<Widget>> children;
+	Gtk::Align horizontal_alignment;
+	Gtk::Align vertical_alignment;
+	std::vector<std::shared_ptr<Widget>> children;
 
   public:
-	explicit Column(const Message::Column &column);
-
 	int32_t tag;
 
+	explicit Column(const Message::Column &column);
+
 	using Box::append;
-	void append(std::unique_ptr<Widget> widget);
+	void append(std::shared_ptr<Widget> widget);
 };
 
 std::unique_ptr<Column> make_column(const Message::Column &column,
-									const Application &app);
+									std::shared_ptr<Application> app);
 
 } // namespace Poly
 

@@ -103,3 +103,48 @@ std::vector<uint8_t> Poly::Message::Column::data() const {
 
   return buf;
 }
+
+std::vector<uint8_t> Poly::Message::Column::data_with_length_prefix() const {
+  std::vector<uint8_t> buf(28 + 4);
+  NanoPack::Writer writer(&buf, 4);
+
+  writer.write_type_id(TYPE_ID);
+
+  if (tag.has_value()) {
+    const auto tag = this->tag.value();
+    writer.write_field_size(0, 4);
+    writer.append_int32(tag);
+  } else {
+    writer.write_field_size(0, -1);
+  }
+
+  writer.write_field_size(1, 8);
+  writer.append_double(width);
+
+  writer.write_field_size(2, 8);
+  writer.append_double(height);
+
+  writer.write_field_size(3, 1);
+  writer.append_int8(horizontal_alignment.value());
+
+  writer.write_field_size(4, 1);
+  writer.append_int8(vertical_alignment.value());
+
+  const size_t children_vec_size = children.size();
+  writer.append_int32(children_vec_size);
+  int32_t children_byte_size = sizeof(int32_t);
+  for (auto &i : children) {
+    const std::vector<uint8_t> i_data = i->data();
+    writer.append_bytes(i_data);
+    children_byte_size += i_data.size();
+  }
+  writer.write_field_size(5, children_byte_size);
+
+  const size_t byte_size = buf.size() - 4;
+  buf[0] = byte_size & 0xFF;
+  buf[1] = byte_size & 0xFF00;
+  buf[2] = byte_size & 0xFF0000;
+  buf[3] = byte_size & 0xFF000000;
+
+  return buf;
+}

@@ -50,3 +50,26 @@ std::vector<uint8_t> Poly::Message::UpdateWidget::data() const {
 
   return buf;
 }
+
+std::vector<uint8_t>
+Poly::Message::UpdateWidget::data_with_length_prefix() const {
+  std::vector<uint8_t> buf(12 + 4);
+  NanoPack::Writer writer(&buf, 4);
+
+  writer.write_type_id(TYPE_ID);
+
+  writer.write_field_size(0, 4);
+  writer.append_int32(tag);
+
+  const std::vector<uint8_t> widget_data = widget->data();
+  writer.append_bytes(widget_data);
+  writer.write_field_size(1, widget_data.size());
+
+  const size_t byte_size = buf.size() - 4;
+  buf[0] = byte_size & 0xFF;
+  buf[1] = byte_size & 0xFF00;
+  buf[2] = byte_size & 0xFF0000;
+  buf[3] = byte_size & 0xFF000000;
+
+  return buf;
+}

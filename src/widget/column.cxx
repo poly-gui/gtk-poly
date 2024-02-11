@@ -7,47 +7,46 @@
 #include "widget_factory.hxx"
 
 Poly::Column::Column(const Message::Column &column)
-	: Box(Gtk::Orientation::VERTICAL, 0) {
-	Gtk::Align halign;
+	: Box(Gtk::Orientation::VERTICAL, 0),
+	  tag(column.tag.has_value() ? *column.tag : 0) {
 	switch (column.horizontal_alignment) {
 	case Message::Alignment::START:
-		halign = Gtk::Align::START;
+		horizontal_alignment = Gtk::Align::START;
 		break;
 	case Message::Alignment::END:
-		halign = Gtk::Align::END;
+		horizontal_alignment = Gtk::Align::END;
 		break;
 	default:
-		halign = Gtk::Align::CENTER;
+		horizontal_alignment = Gtk::Align::CENTER;
 		break;
 	}
 
-	Gtk::Align valign;
 	switch (column.vertical_alignment) {
 	case Message::Alignment::START:
-		valign = Gtk::Align::START;
+		vertical_alignment = Gtk::Align::START;
 		break;
 	case Message::Alignment::END:
-		valign = Gtk::Align::END;
+		vertical_alignment = Gtk::Align::END;
 		break;
 	default:
-		valign = Gtk::Align::CENTER;
+		vertical_alignment = Gtk::Align::CENTER;
 		break;
 	}
-
-	set_halign(halign);
-	set_valign(valign);
 }
 
-void Poly::Column::append(std::unique_ptr<Widget> widget) {
+void Poly::Column::append(std::shared_ptr<Widget> widget) {
+	widget->set_halign(horizontal_alignment);
+	widget->set_valign(vertical_alignment);
 	this->append(*widget);
 	children.emplace_back(std::move(widget));
 }
 
-std::unique_ptr<Poly::Column> Poly::make_column(const Message::Column &column,
-												const Application &app) {
+std::unique_ptr<Poly::Column>
+Poly::make_column(const Message::Column &column,
+				  std::shared_ptr<Application> app) {
 	auto col = std::make_unique<Column>(column);
 	for (const std::unique_ptr<Message::Widget> &child : column.children) {
-		std::unique_ptr<Gtk::Widget> widget = make_widget(*child, app);
+		std::shared_ptr<Gtk::Widget> widget = make_widget(*child, app);
 		col->append(std::move(widget));
 	}
 	return col;

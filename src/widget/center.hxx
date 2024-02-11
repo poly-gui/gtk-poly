@@ -13,8 +13,8 @@
 
 namespace Poly {
 
-std::unique_ptr<Gtk::Widget> make_center(const Message::Center &center,
-										 const Application &app);
+std::shared_ptr<Gtk::Widget> make_center(const Message::Center &center,
+										 std::shared_ptr<Application> app);
 
 }
 

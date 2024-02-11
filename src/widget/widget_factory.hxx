@@ -11,8 +11,10 @@
 
 namespace Poly {
 
-std::unique_ptr<Gtk::Widget> make_widget(Message::Widget &widget,
-										 const Application &app);
+std::shared_ptr<Gtk::Widget> make_widget(Message::Widget &widget,
+										 std::shared_ptr<Application> app);
+
+
 
 }
 

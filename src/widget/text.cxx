@@ -4,11 +4,18 @@
 
 #include "text.hxx"
 
-std::unique_ptr<Poly::Text> Poly::make_text(const Message::Text &msg) {
+#include <glibmm/main.h>
+
+std::unique_ptr<Poly::Text> Poly::make_text(const Message::Text &msg,
+											std::shared_ptr<Application> app) {
 	auto text = std::make_unique<Text>();
 	if (msg.tag.has_value()) {
 		text->tag = *msg.tag;
 	}
-	text->set_placeholder_text(msg.content);
+	text->set_text(msg.content);
 	return text;
+}
+
+void Poly::update_text(Text &text, const Message::Text &new_config) {
+	text.set_text(new_config.content);
 }

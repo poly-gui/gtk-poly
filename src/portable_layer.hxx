@@ -15,7 +15,8 @@
 
 namespace Poly {
 
-typedef std::function<void(std::unique_ptr<NanoPack::Message> message)> MessageHandler;;
+typedef std::function<void(std::unique_ptr<NanoPack::Message> message)>
+	MessageHandler;
 typedef std::function<void(int error)> ErrorHandler;
 
 class PortableLayer {
@@ -35,9 +36,11 @@ class PortableLayer {
   public:
 	explicit PortableLayer(std::filesystem::path bin_path);
 
-	void on_message(const MessageHandler& handler);
+	void send_message(const NanoPack::Message &message) const;
 
-	void on_error(ErrorHandler handler);
+	void on_message(const MessageHandler &handler);
+
+	void on_error(const ErrorHandler &handler);
 
 	/**
 	 * \brief Spawns the portable layer in a child process.
