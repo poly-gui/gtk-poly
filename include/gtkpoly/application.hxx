@@ -42,6 +42,8 @@ class Application : public Gtk::Application,
 
 	void on_activate() override;
 
+	void on_poly_window_destroyed(const std::string &window_tag);
+
   public:
 	Application(Private, const ApplicationConfig &config);
 

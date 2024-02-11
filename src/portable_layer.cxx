@@ -14,8 +14,7 @@
 Poly::PortableLayer::PortableLayer(std::filesystem::path bin_path)
 	: pid(-1), stdin_handle(-1), stdout_handle(-1),
 	  bin_path(std::move(bin_path)), message_handler(nullptr),
-	  error_handler(nullptr) {
-}
+	  error_handler(nullptr) {}
 
 void Poly::PortableLayer::send_message(const NanoPack::Message &message) const {
 	std::vector<uint8_t> msg_bytes = message.data_with_length_prefix();
@@ -95,6 +94,8 @@ void Poly::PortableLayer::spawn() {
 
 void Poly::PortableLayer::terminate() {
 	if (pid > 0) {
+		close(stdin_handle);
+		close(stdout_handle);
 		kill(pid, SIGKILL);
 		pid = -1;
 	}

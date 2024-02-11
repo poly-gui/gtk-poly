@@ -39,9 +39,30 @@ int Poly::Application::start() {
 	return status;
 }
 
-void Poly::Application::on_activate() { hold(); }
+void Poly::Application::on_activate() {
+	// at this point, the portable layer might not have finished initializing.
+	// because no default window is associated with the application unless the
+	// portable layer request for one, it will quit immediately.
+	//
+	// therefore, we need the application to continue running
+	// to wait for the portable layer to finish initializing and to request a
+	// new window
+	hold();
+}
 
-void Poly::Application::cleanup() {}
+void Poly::Application::on_poly_window_destroyed(
+	const std::string &window_tag) {
+	window_manager.remove_window_by_tag(window_tag);
+	if (window_manager.active_window_count() == 0) {
+		// no window is active, quit the application
+		cleanup();
+		quit();
+	}
+}
+
+void Poly::Application::cleanup() {
+	_portable_layer.terminate();
+}
 
 void Poly::Application::handle_message(std::unique_ptr<NanoPack::Message> msg) {
 	switch (msg->type_id()) {
@@ -70,6 +91,10 @@ void Poly::Application::create_window(std::unique_ptr<NanoPack::Message> msg) {
 	window->set_title(create_window_msg->title);
 	window->set_default_size(create_window_msg->width,
 							 create_window_msg->height);
+
+	window->signal_destroy().connect([this, tag = create_window_msg->tag] {
+		on_poly_window_destroyed(tag);
+	});
 
 	Glib::signal_idle().connect_once([this, window] {
 		add_window(*window);
@@ -106,8 +131,9 @@ void Poly::Application::update_widget(std::unique_ptr<NanoPack::Message> msg) {
 		return;
 	}
 
-	Glib::signal_idle().connect_once([widget = std::move(widget), msg = update_widget_msg] {
-		Poly::update_widget(*widget, msg->get_widget());
-		delete msg;
-	});
+	Glib::signal_idle().connect_once(
+		[widget = std::move(widget), msg = update_widget_msg] {
+			Poly::update_widget(*widget, msg->get_widget());
+			delete msg;
+		});
 }

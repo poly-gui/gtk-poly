@@ -23,9 +23,13 @@ class WindowManager {
 	std::unordered_map<std::string, std::shared_ptr<Window>> windows;
 
   public:
+	size_t active_window_count() const;
+
 	std::shared_ptr<Window> new_window_with_tag(const std::string &tag);
 
 	std::shared_ptr<Window> find_window_with_tag(const std::string &tag) const;
+
+	void remove_window_by_tag(const std::string &tag);
 };
 
 } // namespace Poly
