@@ -27,6 +27,8 @@ add_library(gtkpoly STATIC
         src/messages/widgets/column.np.cxx
         src/messages/widgets/button/button.np.cxx
         src/messages/widgets/button/click_event.np.cxx
+        src/messages/widgets/text_field/text_field.np.cxx
+        src/messages/widgets/text_field/on_value_changed.np.cxx
         src/window/window.cxx
         src/window/window_manager.cxx
         src/portable_layer.cxx
@@ -40,6 +42,8 @@ add_library(gtkpoly STATIC
         src/widget/widget_registry.hxx
         src/widget/widget_updater.cxx
         src/widget/widget_updater.hxx
+        src/widget/text_field.cxx
+        src/widget/text_field.hxx
 )
 target_link_libraries(gtkpoly nanopack)
 target_compile_definitions(gtkpoly PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")

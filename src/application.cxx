@@ -60,9 +60,7 @@ void Poly::Application::on_poly_window_destroyed(
 	}
 }
 
-void Poly::Application::cleanup() {
-	_portable_layer.terminate();
-}
+void Poly::Application::cleanup() { _portable_layer.terminate(); }
 
 void Poly::Application::handle_message(std::unique_ptr<NanoPack::Message> msg) {
 	switch (msg->type_id()) {

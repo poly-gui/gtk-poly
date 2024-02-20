@@ -1,13 +1,17 @@
+#include <iostream>
+
 #include "widget_factory.hxx"
 
+#include "../messages/widgets/button/button.np.hxx"
 #include "../messages/widgets/center.np.hxx"
 #include "../messages/widgets/column.np.hxx"
 #include "../messages/widgets/text.np.hxx"
-#include "../messages/widgets/button/button.np.hxx"
+#include "../messages/widgets/text_field/text_field.np.hxx"
+#include "button.hxx"
 #include "center.hxx"
 #include "column.hxx"
 #include "text.hxx"
-#include "button.hxx"
+#include "text_field.hxx"
 
 std::shared_ptr<Gtk::Widget>
 Poly::make_widget(Message::Widget &widget, std::shared_ptr<Application> app) {
@@ -30,7 +34,15 @@ Poly::make_widget(Message::Widget &widget, std::shared_ptr<Application> app) {
 		w = make_button(static_cast<Message::Button &>(widget), app);
 		break;
 
+	case Message::TextField::TYPE_ID:
+		w = make_text_field(static_cast<Message::TextField &>(widget), app);
+		break;
+
 	default:
+#ifdef DEBUG
+		std::cout << "WARNING: unsupported widget type, type ID: "
+				  << widget.type_id();
+#endif
 		return nullptr;
 	}
 

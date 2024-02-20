@@ -7,6 +7,7 @@
 #include "center.np.hxx"
 #include "column.np.hxx"
 #include "text.np.hxx"
+#include "text_field/text_field.np.hxx"
 
 std::unique_ptr<Poly::Message::Widget>
 Poly::Message::make_widget(std::vector<uint8_t>::const_iterator begin,
@@ -15,14 +16,16 @@ Poly::Message::make_widget(std::vector<uint8_t>::const_iterator begin,
   switch (reader.read_type_id()) {
   case 100:
     return std::make_unique<Widget>(reader, bytes_read);
+  case 102:
+    return std::make_unique<Center>(reader, bytes_read);
   case 103:
     return std::make_unique<Column>(reader, bytes_read);
   case 101:
     return std::make_unique<Text>(reader, bytes_read);
+  case 105:
+    return std::make_unique<TextField>(reader, bytes_read);
   case 104:
     return std::make_unique<Button>(reader, bytes_read);
-  case 102:
-    return std::make_unique<Center>(reader, bytes_read);
   default:
     return nullptr;
   }
