@@ -14,8 +14,6 @@ namespace Poly {
 std::shared_ptr<Gtk::Widget> make_widget(Message::Widget &widget,
 										 std::shared_ptr<Application> app);
 
-
-
 }
 
 #endif // GTKPOLY_WIDGET_FACTORY_HXX

@@ -1,57 +1,55 @@
-//
-// Created by kenym on 10/02/24.
-//
-
-#include "column.hxx"
+#include "row.hxx"
 #include "spacer.hxx"
 
 #include "../dimens.hxx"
 #include "widget_factory.hxx"
 
-#include <iostream>
+#include <gtkmm/label.h>
 
-Poly::Column::Column(const Message::Column &column)
-	: Box(Gtk::Orientation::VERTICAL, 0),
-	  tag(column.tag.has_value() ? *column.tag : 0) {
-	const int desired_width = static_cast<int>(round(column.width));
-	const int desired_height = static_cast<int>(round(column.height));
-
-	switch (column.horizontal_alignment) {
-	case Message::Alignment::START:
-		horizontal_alignment = Gtk::Align::START;
-		break;
-	case Message::Alignment::END:
-		horizontal_alignment = Gtk::Align::END;
-		break;
-	default:
-		horizontal_alignment = Gtk::Align::CENTER;
-		break;
-	}
+Poly::Row::Row(const Message::Row &row)
+	: Box(Gtk::Orientation::HORIZONTAL, 0),
+	  tag(row.tag.has_value() ? *row.tag : 0) {
+	const int desired_width = static_cast<int>(round(row.width));
+	const int desired_height = static_cast<int>(round(row.height));
 
 	Widget *start_spacer = nullptr;
 	Widget *end_spacer = nullptr;
-	switch (column.vertical_alignment) {
-	case Message::Alignment::START:
+	switch (row.horizontal_alignment) {
+	case Message::Alignment::CENTER:
 		if (desired_width != Dimension::MIN_CONTENT) {
-			end_spacer = Gtk::make_managed<VerticalSpacer>();
+			start_spacer = Gtk::make_managed<HorizontalSpacer>();
+			end_spacer = Gtk::make_managed<HorizontalSpacer>();
+			append(*start_spacer);
 			append(*end_spacer);
 		}
+		horizontal_alignment = Gtk::Align::CENTER;
+		break;
+
+	case Message::Alignment::END:
+		if (desired_width != Dimension::MIN_CONTENT) {
+			start_spacer = Gtk::make_managed<HorizontalSpacer>();
+			append(*start_spacer);
+		}
+		horizontal_alignment = Gtk::Align::END;
+		break;
+
+	default:
+		if (desired_width != Dimension::MIN_CONTENT) {
+			end_spacer = Gtk::make_managed<HorizontalSpacer>();
+			append(*end_spacer);
+		}
+		horizontal_alignment = Gtk::Align::START;
+		break;
+	}
+
+	switch (row.vertical_alignment) {
+	case Message::Alignment::START:
 		vertical_alignment = Gtk::Align::START;
 		break;
 	case Message::Alignment::END:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			start_spacer = Gtk::make_managed<VerticalSpacer>();
-			append(*start_spacer);
-		}
 		vertical_alignment = Gtk::Align::END;
 		break;
 	default:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			start_spacer = Gtk::make_managed<VerticalSpacer>();
-			end_spacer = Gtk::make_managed<VerticalSpacer>();
-			append(*start_spacer);
-			append(*end_spacer);
-		}
 		vertical_alignment = Gtk::Align::CENTER;
 		break;
 	}
@@ -93,7 +91,7 @@ Poly::Column::Column(const Message::Column &column)
 	}
 }
 
-void Poly::Column::append(std::shared_ptr<Widget> widget) {
+void Poly::Row::append(std::shared_ptr<Widget> widget) {
 	if (widget->get_halign() != Gtk::Align::FILL) {
 		widget->set_halign(horizontal_alignment);
 	}
@@ -125,13 +123,12 @@ void Poly::Column::append(std::shared_ptr<Widget> widget) {
 	children.emplace_back(std::move(widget));
 }
 
-std::unique_ptr<Poly::Column>
-Poly::make_column(const Message::Column &column,
-				  std::shared_ptr<Application> app) {
-	auto col = std::make_unique<Column>(column);
-	for (const std::unique_ptr<Message::Widget> &child : column.children) {
+std::unique_ptr<Poly::Row> Poly::make_row(const Message::Row &row,
+										  std::shared_ptr<Application> app) {
+	auto _row = std::make_unique<Row>(row);
+	for (const std::unique_ptr<Message::Widget> &child : row.children) {
 		std::shared_ptr<Gtk::Widget> widget = make_widget(*child, app);
-		col->append(std::move(widget));
+		_row->append(std::move(widget));
 	}
-	return col;
+	return _row;
 }

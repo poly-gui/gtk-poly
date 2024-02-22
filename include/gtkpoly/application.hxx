@@ -6,7 +6,6 @@
 #include <nanopack/message.hxx>
 
 #include "../../src/portable_layer.hxx"
-#include "../../src/signal_connection_registry.hxx"
 #include "../../src/widget/widget_registry.hxx"
 #include "window.hxx"
 

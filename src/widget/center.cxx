@@ -2,11 +2,17 @@
 
 #include "widget_factory.hxx"
 
+#include <iostream>
+
 std::shared_ptr<Gtk::Widget>
 Poly::make_center(const Message::Center &center,
-				  std::shared_ptr<Application> app) {
+                  std::shared_ptr<Application> app) {
 	auto widget = make_widget(center.get_child(), std::move(app));
-	widget->set_halign(Gtk::Align::CENTER);
-	widget->set_valign(Gtk::Align::CENTER);
+	if (widget->get_halign() != Gtk::Align::FILL) {
+		widget->set_halign(Gtk::Align::CENTER);
+	}
+	if (widget->get_valign() != Gtk::Align::FILL) {
+		widget->set_valign(Gtk::Align::CENTER);
+	}
 	return widget;
 }

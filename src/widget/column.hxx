@@ -18,6 +18,8 @@ class Column final : public Gtk::Box {
 	Gtk::Align vertical_alignment;
 	std::vector<std::shared_ptr<Widget>> children;
 
+	bool has_spacer;
+
   public:
 	int32_t tag;
 

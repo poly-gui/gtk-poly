@@ -24,6 +24,7 @@ add_library(gtkpoly STATIC
         src/messages/widgets/widget.np.cxx
         src/messages/widgets/center.np.cxx
         src/messages/widgets/text.np.cxx
+        src/messages/widgets/row.np.cxx
         src/messages/widgets/column.np.cxx
         src/messages/widgets/button/button.np.cxx
         src/messages/widgets/button/click_event.np.cxx
@@ -37,13 +38,11 @@ add_library(gtkpoly STATIC
         src/widget/column.cxx
         src/widget/center.cxx
         src/widget/button.cxx
-        src/widget/button.hxx
         src/widget/widget_registry.cxx
-        src/widget/widget_registry.hxx
         src/widget/widget_updater.cxx
-        src/widget/widget_updater.hxx
         src/widget/text_field.cxx
-        src/widget/text_field.hxx
+        src/widget/row.cxx
+        src/widget/spacer.cxx
 )
 target_link_libraries(gtkpoly nanopack)
 target_compile_definitions(gtkpoly PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")

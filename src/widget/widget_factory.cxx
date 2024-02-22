@@ -5,11 +5,13 @@
 #include "../messages/widgets/button/button.np.hxx"
 #include "../messages/widgets/center.np.hxx"
 #include "../messages/widgets/column.np.hxx"
+#include "../messages/widgets/row.np.hxx"
 #include "../messages/widgets/text.np.hxx"
 #include "../messages/widgets/text_field/text_field.np.hxx"
 #include "button.hxx"
 #include "center.hxx"
 #include "column.hxx"
+#include "row.hxx"
 #include "text.hxx"
 #include "text_field.hxx"
 
@@ -20,6 +22,10 @@ Poly::make_widget(Message::Widget &widget, std::shared_ptr<Application> app) {
 	switch (widget.type_id()) {
 	case Message::Text::TYPE_ID:
 		w = make_text(static_cast<Message::Text &>(widget), app);
+		break;
+
+	case Message::Row::TYPE_ID:
+		w = make_row(static_cast<Message::Row &>(widget), app);
 		break;
 
 	case Message::Column::TYPE_ID:
