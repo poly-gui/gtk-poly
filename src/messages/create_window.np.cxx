@@ -44,7 +44,9 @@ Poly::Message::CreateWindow::CreateWindow(
     std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : CreateWindow(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Poly::Message::CreateWindow::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::CreateWindow::type_id() const {
+  return TYPE_ID;
+}
 
 std::vector<uint8_t> Poly::Message::CreateWindow::data() const {
   std::vector<uint8_t> buf(24);

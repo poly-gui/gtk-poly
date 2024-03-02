@@ -4,6 +4,7 @@
 #define CREATE_WINDOW_NP_HXX
 
 #include <nanopack/message.hxx>
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <string>
 #include <vector>
@@ -11,7 +12,7 @@
 namespace Poly::Message {
 
 struct CreateWindow : NanoPack::Message {
-  static constexpr int32_t TYPE_ID = 10;
+  static constexpr NanoPack::TypeId TYPE_ID = 3533765426;
 
   std::string title;
   std::string description;
@@ -28,7 +29,7 @@ struct CreateWindow : NanoPack::Message {
 
   CreateWindow(const NanoPack::Reader &reader, int &bytes_read);
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 

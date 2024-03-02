@@ -37,7 +37,7 @@ Poly::Message::Button::Button(std::vector<uint8_t>::const_iterator begin,
                               int &bytes_read)
     : Button(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Poly::Message::Button::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::Button::type_id() const { return TYPE_ID; }
 
 std::vector<uint8_t> Poly::Message::Button::data() const {
   std::vector<uint8_t> buf(16);

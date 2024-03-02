@@ -37,7 +37,7 @@ Poly::Message::Widget &Poly::Message::Center::get_child() const {
   return *child;
 }
 
-int32_t Poly::Message::Center::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::Center::type_id() const { return TYPE_ID; }
 
 std::vector<uint8_t> Poly::Message::Center::data() const {
   std::vector<uint8_t> buf(12);

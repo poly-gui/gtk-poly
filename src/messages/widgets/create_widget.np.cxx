@@ -33,7 +33,9 @@ Poly::Message::Widget &Poly::Message::CreateWidget::get_widget() const {
   return *widget;
 }
 
-int32_t Poly::Message::CreateWidget::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::CreateWidget::type_id() const {
+  return TYPE_ID;
+}
 
 std::vector<uint8_t> Poly::Message::CreateWidget::data() const {
   std::vector<uint8_t> buf(12);

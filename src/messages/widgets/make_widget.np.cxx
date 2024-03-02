@@ -15,20 +15,20 @@ Poly::Message::make_widget(std::vector<uint8_t>::const_iterator begin,
                            int &bytes_read) {
   const NanoPack::Reader reader(begin);
   switch (reader.read_type_id()) {
-  case 100:
+  case 1676374721:
     return std::make_unique<Widget>(reader, bytes_read);
-  case 103:
-    return std::make_unique<Column>(reader, bytes_read);
-  case 106:
-    return std::make_unique<Row>(reader, bytes_read);
-  case 101:
-    return std::make_unique<Text>(reader, bytes_read);
-  case 102:
-    return std::make_unique<Center>(reader, bytes_read);
-  case 104:
+  case 320412644:
     return std::make_unique<Button>(reader, bytes_read);
-  case 105:
+  case 841129444:
     return std::make_unique<TextField>(reader, bytes_read);
+  case 1006836449:
+    return std::make_unique<Row>(reader, bytes_read);
+  case 1855640887:
+    return std::make_unique<Center>(reader, bytes_read);
+  case 2415007766:
+    return std::make_unique<Column>(reader, bytes_read);
+  case 3495336243:
+    return std::make_unique<Text>(reader, bytes_read);
   default:
     return nullptr;
   }

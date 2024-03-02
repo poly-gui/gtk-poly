@@ -4,6 +4,7 @@
 #define CENTER_NP_HXX
 
 #include <memory>
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <vector>
 
@@ -13,7 +14,7 @@
 namespace Poly::Message {
 
 struct Center : Widget {
-  static constexpr int32_t TYPE_ID = 102;
+  static constexpr NanoPack::TypeId TYPE_ID = 1855640887;
 
   std::unique_ptr<Widget> child;
 
@@ -27,7 +28,7 @@ struct Center : Widget {
 
   [[nodiscard]] Widget &get_child() const;
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 

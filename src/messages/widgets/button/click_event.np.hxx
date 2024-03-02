@@ -4,13 +4,14 @@
 #define CLICK_EVENT_NP_HXX
 
 #include <nanopack/message.hxx>
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <vector>
 
 namespace Poly::Message {
 
 struct ClickEvent : NanoPack::Message {
-  static constexpr int32_t TYPE_ID = 1041;
+  static constexpr NanoPack::TypeId TYPE_ID = 837166865;
 
   int32_t timestamp;
 
@@ -22,7 +23,7 @@ struct ClickEvent : NanoPack::Message {
 
   ClickEvent(const NanoPack::Reader &reader, int &bytes_read);
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 

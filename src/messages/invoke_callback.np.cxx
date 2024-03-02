@@ -29,7 +29,9 @@ Poly::Message::InvokeCallback::InvokeCallback(
     std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : InvokeCallback(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Poly::Message::InvokeCallback::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::InvokeCallback::type_id() const {
+  return TYPE_ID;
+}
 
 std::vector<uint8_t> Poly::Message::InvokeCallback::data() const {
   std::vector<uint8_t> buf(12);

@@ -3,6 +3,7 @@
 #ifndef BUTTON_NP_HXX
 #define BUTTON_NP_HXX
 
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <string>
 #include <vector>
@@ -13,7 +14,7 @@
 namespace Poly::Message {
 
 struct Button : Widget {
-  static constexpr int32_t TYPE_ID = 104;
+  static constexpr NanoPack::TypeId TYPE_ID = 320412644;
 
   std::string text;
   int32_t on_click;
@@ -26,7 +27,7 @@ struct Button : Widget {
 
   Button(const NanoPack::Reader &reader, int &bytes_read);
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 

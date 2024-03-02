@@ -62,7 +62,7 @@ Poly::Message::Row::Row(std::vector<uint8_t>::const_iterator begin,
                         int &bytes_read)
     : Row(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Poly::Message::Row::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::Row::type_id() const { return TYPE_ID; }
 
 std::vector<uint8_t> Poly::Message::Row::data() const {
   std::vector<uint8_t> buf(28);

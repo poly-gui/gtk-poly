@@ -20,34 +20,34 @@
 std::unique_ptr<NanoPack::Message> Poly::Message::make_nanopack_message(
     std::vector<uint8_t>::const_iterator data_iter, int &bytes_read) {
   switch (const NanoPack::Reader reader(data_iter); reader.read_type_id()) {
-  case 3:
-    return std::make_unique<UpdateWidget>(reader, bytes_read);
-  case 100:
-    return std::make_unique<Widget>(reader, bytes_read);
-  case 2:
-    return std::make_unique<InvokeCallback>(reader, bytes_read);
-  case 102:
-    return std::make_unique<Center>(reader, bytes_read);
-  case 4:
-    return std::make_unique<UpdateWidgets>(reader, bytes_read);
-  case 1041:
-    return std::make_unique<ClickEvent>(reader, bytes_read);
-  case 10:
-    return std::make_unique<CreateWindow>(reader, bytes_read);
-  case 105:
-    return std::make_unique<TextField>(reader, bytes_read);
-  case 1051:
-    return std::make_unique<OnValueChanged>(reader, bytes_read);
-  case 103:
-    return std::make_unique<Column>(reader, bytes_read);
-  case 101:
-    return std::make_unique<Text>(reader, bytes_read);
-  case 104:
+  case 320412644:
     return std::make_unique<Button>(reader, bytes_read);
-  case 20:
-    return std::make_unique<CreateWidget>(reader, bytes_read);
-  case 106:
+  case 624966581:
+    return std::make_unique<UpdateWidgets>(reader, bytes_read);
+  case 837166865:
+    return std::make_unique<ClickEvent>(reader, bytes_read);
+  case 841129444:
+    return std::make_unique<TextField>(reader, bytes_read);
+  case 1006836449:
     return std::make_unique<Row>(reader, bytes_read);
+  case 1016534798:
+    return std::make_unique<UpdateWidget>(reader, bytes_read);
+  case 1676374721:
+    return std::make_unique<Widget>(reader, bytes_read);
+  case 1768749598:
+    return std::make_unique<OnValueChanged>(reader, bytes_read);
+  case 1855640887:
+    return std::make_unique<Center>(reader, bytes_read);
+  case 2013877267:
+    return std::make_unique<InvokeCallback>(reader, bytes_read);
+  case 2313387354:
+    return std::make_unique<CreateWidget>(reader, bytes_read);
+  case 2415007766:
+    return std::make_unique<Column>(reader, bytes_read);
+  case 3495336243:
+    return std::make_unique<Text>(reader, bytes_read);
+  case 3533765426:
+    return std::make_unique<CreateWindow>(reader, bytes_read);
   default:
     return nullptr;
   }

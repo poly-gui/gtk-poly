@@ -5,6 +5,7 @@
 
 #include <memory>
 #include <nanopack/message.hxx>
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <vector>
 
@@ -14,7 +15,7 @@
 namespace Poly::Message {
 
 struct UpdateWidget : NanoPack::Message {
-  static constexpr int32_t TYPE_ID = 3;
+  static constexpr NanoPack::TypeId TYPE_ID = 1016534798;
 
   int32_t tag;
   std::unique_ptr<Widget> widget;
@@ -29,7 +30,7 @@ struct UpdateWidget : NanoPack::Message {
 
   [[nodiscard]] Widget &get_widget() const;
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 

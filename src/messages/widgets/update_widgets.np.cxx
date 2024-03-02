@@ -32,7 +32,9 @@ Poly::Message::UpdateWidgets::UpdateWidgets(
     std::vector<uint8_t>::const_iterator begin, int &bytes_read)
     : UpdateWidgets(NanoPack::Reader(begin), bytes_read) {}
 
-int32_t Poly::Message::UpdateWidgets::type_id() const { return TYPE_ID; }
+NanoPack::TypeId Poly::Message::UpdateWidgets::type_id() const {
+  return TYPE_ID;
+}
 
 std::vector<uint8_t> Poly::Message::UpdateWidgets::data() const {
   std::vector<uint8_t> buf(8);

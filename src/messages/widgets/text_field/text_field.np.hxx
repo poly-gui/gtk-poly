@@ -3,6 +3,7 @@
 #ifndef TEXT_FIELD_NP_HXX
 #define TEXT_FIELD_NP_HXX
 
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <optional>
 #include <string>
@@ -14,7 +15,7 @@
 namespace Poly::Message {
 
 struct TextField : Widget {
-  static constexpr int32_t TYPE_ID = 105;
+  static constexpr NanoPack::TypeId TYPE_ID = 841129444;
 
   std::optional<std::string> placeholder;
   std::string value;
@@ -29,7 +30,7 @@ struct TextField : Widget {
 
   TextField(const NanoPack::Reader &reader, int &bytes_read);
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 

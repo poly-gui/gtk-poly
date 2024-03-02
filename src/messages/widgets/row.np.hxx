@@ -3,6 +3,7 @@
 #ifndef ROW_NP_HXX
 #define ROW_NP_HXX
 
+#include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
 #include <vector>
 
@@ -13,7 +14,7 @@
 namespace Poly::Message {
 
 struct Row : Widget {
-  static constexpr int32_t TYPE_ID = 106;
+  static constexpr NanoPack::TypeId TYPE_ID = 1006836449;
 
   double width;
   double height;
@@ -32,7 +33,7 @@ struct Row : Widget {
 
   Row(const NanoPack::Reader &reader, int &bytes_read);
 
-  [[nodiscard]] int32_t type_id() const override;
+  [[nodiscard]] NanoPack::TypeId type_id() const override;
 
   [[nodiscard]] std::vector<uint8_t> data() const override;
 
