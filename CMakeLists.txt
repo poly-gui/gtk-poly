@@ -16,6 +16,7 @@ add_library(gtkpoly STATIC
         src/application.cxx
         src/messages/create_window.np.cxx
         src/messages/invoke_callback.np.cxx
+        src/messages/reply_from_callback.np.cxx
         src/messages/nanopack_message_factory.np.cxx
         src/messages/widgets/create_widget.np.cxx
         src/messages/widgets/update_widget.np.cxx
@@ -30,6 +31,13 @@ add_library(gtkpoly STATIC
         src/messages/widgets/button/click_event.np.cxx
         src/messages/widgets/text_field/text_field.np.cxx
         src/messages/widgets/text_field/on_value_changed.np.cxx
+        src/messages/widgets/list_view/list_view.np.cxx
+        src/messages/widgets/list_view/list_view_operation.np.cxx
+        src/messages/widgets/list_view/list_view_batch_operations.np.cxx
+        src/messages/widgets/list_view/list_view_insert_operation.np.cxx
+        src/messages/widgets/list_view/list_view_delete_operation.np.cxx
+        src/messages/widgets/list_view/make_list_view_operation.np.cxx
+        src/messages/widgets/list_view/render_item_config.np.cxx
         src/window/window.cxx
         src/window/window_manager.cxx
         src/portable_layer.cxx
@@ -43,6 +51,7 @@ add_library(gtkpoly STATIC
         src/widget/text_field.cxx
         src/widget/row.cxx
         src/widget/spacer.cxx
+        src/widget/list_view.cxx
 )
 target_link_libraries(gtkpoly nanopack)
 target_compile_definitions(gtkpoly PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")

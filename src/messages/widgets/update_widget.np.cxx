@@ -6,13 +6,14 @@
 #include "update_widget.np.hxx"
 
 Poly::Message::UpdateWidget::UpdateWidget(int32_t tag,
-                                          std::unique_ptr<Widget> widget)
-    : tag(tag), widget(std::move(widget)) {}
+                                          std::unique_ptr<Widget> widget,
+                                          std::optional<NanoPack::Any> args)
+    : tag(tag), widget(std::move(widget)), args(std::move(args)) {}
 
 Poly::Message::UpdateWidget::UpdateWidget(const NanoPack::Reader &reader,
                                           int &bytes_read) {
   const auto begin = reader.begin();
-  int ptr = 12;
+  int ptr = 16;
 
   const int32_t tag = reader.read_int32(ptr);
   ptr += 4;
@@ -21,6 +22,14 @@ Poly::Message::UpdateWidget::UpdateWidget(const NanoPack::Reader &reader,
   int widget_bytes_read = 0;
   widget = std::move(make_widget(begin + ptr, widget_bytes_read));
   ptr += widget_bytes_read;
+
+  if (reader.read_field_size(2) < 0) {
+    this->args = std::nullopt;
+  } else {
+    const int32_t args_byte_size = reader.read_field_size(2);
+    args = NanoPack::Any(begin + ptr, begin + ptr + args_byte_size);
+    ptr += args_byte_size;
+  }
 
   bytes_read = ptr;
 }
@@ -38,7 +47,7 @@ NanoPack::TypeId Poly::Message::UpdateWidget::type_id() const {
 }
 
 std::vector<uint8_t> Poly::Message::UpdateWidget::data() const {
-  std::vector<uint8_t> buf(12);
+  std::vector<uint8_t> buf(16);
   NanoPack::Writer writer(&buf);
 
   writer.write_type_id(TYPE_ID);
@@ -50,12 +59,20 @@ std::vector<uint8_t> Poly::Message::UpdateWidget::data() const {
   writer.append_bytes(widget_data);
   writer.write_field_size(1, widget_data.size());
 
+  if (args.has_value()) {
+    const auto args = this->args.value();
+    writer.write_field_size(2, args.size());
+    writer.append_bytes(args.data());
+  } else {
+    writer.write_field_size(2, -1);
+  }
+
   return buf;
 }
 
 std::vector<uint8_t>
 Poly::Message::UpdateWidget::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(12 + 4);
+  std::vector<uint8_t> buf(16 + 4);
   NanoPack::Writer writer(&buf, 4);
 
   writer.write_type_id(TYPE_ID);
@@ -66,6 +83,14 @@ Poly::Message::UpdateWidget::data_with_length_prefix() const {
   const std::vector<uint8_t> widget_data = widget->data();
   writer.append_bytes(widget_data);
   writer.write_field_size(1, widget_data.size());
+
+  if (args.has_value()) {
+    const auto args = this->args.value();
+    writer.write_field_size(2, args.size());
+    writer.append_bytes(args.data());
+  } else {
+    writer.write_field_size(2, -1);
+  }
 
   const size_t byte_size = buf.size() - 4;
   buf[0] = byte_size & 0xFF;

@@ -74,6 +74,7 @@ void Poly::Application::handle_message(std::unique_ptr<NanoPack::Message> msg) {
 
 	case Message::UpdateWidget::TYPE_ID:
 		update_widget(std::move(msg));
+		break;
 
 	default:
 		break;
@@ -88,7 +89,7 @@ void Poly::Application::create_window(std::unique_ptr<NanoPack::Message> msg) {
 		window_manager.new_window_with_tag(create_window_msg->tag);
 	window->set_title(create_window_msg->title);
 	window->set_default_size(create_window_msg->width,
-							 create_window_msg->height);
+	                         create_window_msg->height);
 
 	window->signal_destroy().connect([this, tag = create_window_msg->tag] {
 		on_poly_window_destroyed(tag);
@@ -124,7 +125,7 @@ void Poly::Application::update_widget(std::unique_ptr<NanoPack::Message> msg) {
 	if (widget == nullptr) {
 #ifdef DEBUG
 		std::cout << "[WARNING] requested to update widget with tag "
-				  << update_widget_msg->tag << " but it doesn't exist.";
+			<< update_widget_msg->tag << " but it doesn't exist." << std::endl;
 #endif
 		return;
 	}

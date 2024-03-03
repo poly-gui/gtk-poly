@@ -7,6 +7,7 @@
 #include <nanopack/message.hxx>
 #include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
+#include <optional>
 #include <vector>
 
 namespace Poly::Message {
@@ -16,10 +17,12 @@ struct InvokeCallback : NanoPack::Message {
 
   int32_t handle;
   NanoPack::Any args;
+  std::optional<int32_t> reply_to;
 
   InvokeCallback() = default;
 
-  InvokeCallback(int32_t handle, NanoPack::Any args);
+  InvokeCallback(int32_t handle, NanoPack::Any args,
+                 std::optional<int32_t> reply_to);
 
   InvokeCallback(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 

@@ -8,17 +8,45 @@
 #include "messages/nanopack_message_factory.np.hxx"
 #include "portable_layer.hxx"
 
+#include "messages/invoke_callback.np.hxx"
+#include "messages/reply_from_callback.np.hxx"
+
 #include <iostream>
 #include <thread>
+#include <utility>
 
 Poly::PortableLayer::PortableLayer(std::filesystem::path bin_path)
 	: pid(-1), stdin_handle(-1), stdout_handle(-1),
-	  bin_path(std::move(bin_path)), message_handler(nullptr),
-	  error_handler(nullptr) {}
+	  bin_path(std::move(bin_path)),
+	  random_reply_handle(0, std::numeric_limits<int32_t>::max()),
+	  message_handler(nullptr), error_handler(nullptr) {}
 
 void Poly::PortableLayer::send_message(const NanoPack::Message &message) const {
 	std::vector<uint8_t> msg_bytes = message.data_with_length_prefix();
 	write(stdin_handle, msg_bytes.data(), msg_bytes.size());
+}
+
+void Poly::PortableLayer::invoke_callback(const int32_t callback_handle,
+										  NanoPack::Any args) const {
+	const Message::InvokeCallback invoke_callback(
+		callback_handle, std::move(args), std::nullopt);
+	send_message(invoke_callback);
+}
+
+std::future<NanoPack::Any>
+Poly::PortableLayer::invoke_callback_with_result(const int32_t callback_handle,
+												 NanoPack::Any args) {
+	std::promise<NanoPack::Any> promise;
+	auto future = promise.get_future();
+	int32_t reply_handle = random_reply_handle.generate();
+
+	pending_callback[reply_handle] = std::move(promise);
+
+	const Message::InvokeCallback invoke_callback(
+		callback_handle, std::move(args), reply_handle);
+	send_message(invoke_callback);
+
+	return future;
 }
 
 void Poly::PortableLayer::on_message(const MessageHandler &handler) {
@@ -43,9 +71,6 @@ void Poly::PortableLayer::spawn() {
 
 	const int pid = fork();
 	if (const bool is_child = pid == 0; is_child) {
-		std::cout << "fork" << std::endl;
-		std::cout << bin_path << std::endl;
-
 		// file descriptor of stdout of native layer
 		// messages from native layer are sent to here which can be read with
 		// the read descriptor (READ_FD)
@@ -123,11 +148,34 @@ void Poly::PortableLayer::read_portable_layer_stdout() {
 	}
 }
 
+void Poly::PortableLayer::reply_to_callback(
+	const Message::ReplyFromCallback *msg) {
+	const auto entry = pending_callback.find(msg->to);
+	if (entry == pending_callback.end())
+		return;
+
+	auto promise = std::move(entry->second);
+	promise.set_value(msg->args);
+
+	pending_callback.erase(msg->to);
+}
+
 void Poly::PortableLayer::handle_message(std::vector<uint8_t> msg_bytes) {
 	int bytes_read;
 	std::unique_ptr<NanoPack::Message> message =
 		Message::make_nanopack_message(msg_bytes.begin(), bytes_read);
-	if (message_handler != nullptr) {
+	if (message == nullptr) {
+#ifdef DEBUG
+		const std::string verbose(msg_bytes.begin(), msg_bytes.end());
+		std::cout << "VERBOSE: " << verbose << std::endl;
+#endif
+		return;
+	}
+
+	if (message->type_id() == Message::ReplyFromCallback::TYPE_ID) {
+		reply_to_callback(
+			static_cast<Message::ReplyFromCallback *>(message.get()));
+	} else if (message_handler != nullptr) {
 		message_handler(std::move(message));
 	}
 }

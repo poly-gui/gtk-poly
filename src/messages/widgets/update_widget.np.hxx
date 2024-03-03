@@ -4,9 +4,11 @@
 #define UPDATE_WIDGET_NP_HXX
 
 #include <memory>
+#include <nanopack/any.hxx>
 #include <nanopack/message.hxx>
 #include <nanopack/nanopack.hxx>
 #include <nanopack/reader.hxx>
+#include <optional>
 #include <vector>
 
 #include "make_widget.np.hxx"
@@ -19,10 +21,12 @@ struct UpdateWidget : NanoPack::Message {
 
   int32_t tag;
   std::unique_ptr<Widget> widget;
+  std::optional<NanoPack::Any> args;
 
   UpdateWidget() = default;
 
-  UpdateWidget(int32_t tag, std::unique_ptr<Widget> widget);
+  UpdateWidget(int32_t tag, std::unique_ptr<Widget> widget,
+               std::optional<NanoPack::Any> args);
 
   UpdateWidget(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 

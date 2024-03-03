@@ -4,11 +4,18 @@
 
 #include "create_window.np.hxx"
 #include "invoke_callback.np.hxx"
+#include "reply_from_callback.np.hxx"
 #include "widgets/button/button.np.hxx"
 #include "widgets/button/click_event.np.hxx"
 #include "widgets/center.np.hxx"
 #include "widgets/column.np.hxx"
 #include "widgets/create_widget.np.hxx"
+#include "widgets/list_view/list_view.np.hxx"
+#include "widgets/list_view/list_view_batch_operations.np.hxx"
+#include "widgets/list_view/list_view_delete_operation.np.hxx"
+#include "widgets/list_view/list_view_insert_operation.np.hxx"
+#include "widgets/list_view/list_view_operation.np.hxx"
+#include "widgets/list_view/render_item_config.np.hxx"
 #include "widgets/row.np.hxx"
 #include "widgets/text.np.hxx"
 #include "widgets/text_field/on_value_changed.np.hxx"
@@ -22,6 +29,8 @@ std::unique_ptr<NanoPack::Message> Poly::Message::make_nanopack_message(
   switch (const NanoPack::Reader reader(data_iter); reader.read_type_id()) {
   case 320412644:
     return std::make_unique<Button>(reader, bytes_read);
+  case 370365707:
+    return std::make_unique<ReplyFromCallback>(reader, bytes_read);
   case 624966581:
     return std::make_unique<UpdateWidgets>(reader, bytes_read);
   case 837166865:
@@ -40,14 +49,26 @@ std::unique_ptr<NanoPack::Message> Poly::Message::make_nanopack_message(
     return std::make_unique<Center>(reader, bytes_read);
   case 2013877267:
     return std::make_unique<InvokeCallback>(reader, bytes_read);
+  case 2077451345:
+    return std::make_unique<ListViewInsertOperation>(reader, bytes_read);
+  case 2164488861:
+    return std::make_unique<ListView>(reader, bytes_read);
+  case 2223513129:
+    return std::make_unique<ListViewDeleteOperation>(reader, bytes_read);
   case 2313387354:
     return std::make_unique<CreateWidget>(reader, bytes_read);
   case 2415007766:
     return std::make_unique<Column>(reader, bytes_read);
   case 3495336243:
     return std::make_unique<Text>(reader, bytes_read);
+  case 3516816492:
+    return std::make_unique<ListViewOperation>(reader, bytes_read);
   case 3533765426:
     return std::make_unique<CreateWindow>(reader, bytes_read);
+  case 3591753548:
+    return std::make_unique<RenderItemConfig>(reader, bytes_read);
+  case 3604546751:
+    return std::make_unique<ListViewBatchOperations>(reader, bytes_read);
   default:
     return nullptr;
   }

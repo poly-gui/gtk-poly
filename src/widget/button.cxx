@@ -13,17 +13,16 @@ Poly::Button::Button(const Message::Button &button,
 	set_halign(Gtk::Align::START);
 	set_valign(Gtk::Align::START);
 
-	signal_clicked().connect([this, app = std::move(app)] {
-		const auto now = std::chrono::system_clock::now();
-		const Message::ClickEvent click_event(
-			std::chrono::duration_cast<std::chrono::seconds>(
-				now.time_since_epoch())
-			.count());
-		const Message::InvokeCallback invoke_callback(on_click_handle,
-			click_event);
+	signal_clicked().connect(
+		[on_click_handle = this->on_click_handle, app = std::move(app)] {
+			const auto now = std::chrono::system_clock::now();
+			const Message::ClickEvent click_event(
+				std::chrono::duration_cast<std::chrono::seconds>(
+					now.time_since_epoch())
+				.count());
 
-		app->portable_layer().send_message(invoke_callback);
-	});
+			app->portable_layer().invoke_callback(on_click_handle, click_event);
+		});
 }
 
 std::unique_ptr<Poly::Button>

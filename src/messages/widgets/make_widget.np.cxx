@@ -6,6 +6,7 @@
 #include "button/button.np.hxx"
 #include "center.np.hxx"
 #include "column.np.hxx"
+#include "list_view/list_view.np.hxx"
 #include "row.np.hxx"
 #include "text.np.hxx"
 #include "text_field/text_field.np.hxx"
@@ -25,6 +26,8 @@ Poly::Message::make_widget(std::vector<uint8_t>::const_iterator begin,
     return std::make_unique<Row>(reader, bytes_read);
   case 1855640887:
     return std::make_unique<Center>(reader, bytes_read);
+  case 2164488861:
+    return std::make_unique<ListView>(reader, bytes_read);
   case 2415007766:
     return std::make_unique<Column>(reader, bytes_read);
   case 3495336243:

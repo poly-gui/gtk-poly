@@ -6,13 +6,14 @@
 #include "invoke_callback.np.hxx"
 
 Poly::Message::InvokeCallback::InvokeCallback(int32_t handle,
-                                              NanoPack::Any args)
-    : handle(handle), args(std::move(args)) {}
+                                              NanoPack::Any args,
+                                              std::optional<int32_t> reply_to)
+    : handle(handle), args(std::move(args)), reply_to(std::move(reply_to)) {}
 
 Poly::Message::InvokeCallback::InvokeCallback(const NanoPack::Reader &reader,
                                               int &bytes_read) {
   const auto begin = reader.begin();
-  int ptr = 12;
+  int ptr = 16;
 
   const int32_t handle = reader.read_int32(ptr);
   ptr += 4;
@@ -21,6 +22,14 @@ Poly::Message::InvokeCallback::InvokeCallback(const NanoPack::Reader &reader,
   const int32_t args_byte_size = reader.read_field_size(1);
   args = NanoPack::Any(begin + ptr, begin + ptr + args_byte_size);
   ptr += args_byte_size;
+
+  if (reader.read_field_size(2) < 0) {
+    this->reply_to = std::nullopt;
+  } else {
+    const int32_t reply_to = reader.read_int32(ptr);
+    ptr += 4;
+    this->reply_to = reply_to;
+  }
 
   bytes_read = ptr;
 }
@@ -34,7 +43,7 @@ NanoPack::TypeId Poly::Message::InvokeCallback::type_id() const {
 }
 
 std::vector<uint8_t> Poly::Message::InvokeCallback::data() const {
-  std::vector<uint8_t> buf(12);
+  std::vector<uint8_t> buf(16);
   NanoPack::Writer writer(&buf);
 
   writer.write_type_id(TYPE_ID);
@@ -45,12 +54,20 @@ std::vector<uint8_t> Poly::Message::InvokeCallback::data() const {
   writer.write_field_size(1, args.size());
   writer.append_bytes(args.data());
 
+  if (reply_to.has_value()) {
+    const auto reply_to = this->reply_to.value();
+    writer.write_field_size(2, 4);
+    writer.append_int32(reply_to);
+  } else {
+    writer.write_field_size(2, -1);
+  }
+
   return buf;
 }
 
 std::vector<uint8_t>
 Poly::Message::InvokeCallback::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(12 + 4);
+  std::vector<uint8_t> buf(16 + 4);
   NanoPack::Writer writer(&buf, 4);
 
   writer.write_type_id(TYPE_ID);
@@ -60,6 +77,14 @@ Poly::Message::InvokeCallback::data_with_length_prefix() const {
 
   writer.write_field_size(1, args.size());
   writer.append_bytes(args.data());
+
+  if (reply_to.has_value()) {
+    const auto reply_to = this->reply_to.value();
+    writer.write_field_size(2, 4);
+    writer.append_int32(reply_to);
+  } else {
+    writer.write_field_size(2, -1);
+  }
 
   const size_t byte_size = buf.size() - 4;
   buf[0] = byte_size & 0xFF;
