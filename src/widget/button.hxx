@@ -5,6 +5,7 @@
 #ifndef GTKPOLY_BUTTON_HXX
 #define GTKPOLY_BUTTON_HXX
 
+#include <glibmm/refptr.h>
 #include <gtkmm/button.h>
 #include <gtkpoly/application.hxx>
 #include <memory>
@@ -15,19 +16,19 @@
 namespace Poly {
 
 class Button final : public Gtk::Button {
+  protected:
+	Button(const Message::Button &button, std::shared_ptr<Application> app);
+
   public:
 	int32_t tag;
 
 	int32_t on_click_handle;
 
-	using Gtk::Button::Button;
-	Button(const Message::Button &button, std::shared_ptr<Application> app);
+	static Glib::RefPtr<Button> create(const Message::Button &button,
+									   std::shared_ptr<Application> app);
+
+	void update(const Message::Button &msg);
 };
-
-std::unique_ptr<Button> make_button(const Message::Button &button,
-									std::shared_ptr<Application> app);
-
-void update_button(Button &button, const Message::Button &new_config);
 
 } // namespace Poly
 

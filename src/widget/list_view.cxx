@@ -1,20 +1,19 @@
+#include <chrono>
 #include <giomm/liststore.h>
+#include <glibmm.h>
+#include <gtkmm/label.h>
 #include <gtkmm/noselection.h>
 #include <gtkmm/signallistitemfactory.h>
-
-#include "list_view.hxx"
+#include <iostream>
 
 #include "../dimens.hxx"
 #include "../messages/widgets/list_view/list_view_item.np.hxx"
 #include "../messages/widgets/list_view/list_view_item_config.np.hxx"
 #include "../messages/widgets/update_widgets.np.hxx"
+#include "list_view.hxx"
+#include "text.hxx"
 #include "widget_factory.hxx"
 #include "widget_updater.hxx"
-
-#include "text.hxx"
-#include <glibmm.h>
-#include <gtkmm/label.h>
-#include <iostream>
 
 Poly::__ListViewPlaceholderItemObjectDoNotUseOrGetFired__::
 	__ListViewPlaceholderItemObjectDoNotUseOrGetFired__()
@@ -67,6 +66,13 @@ Poly::ListView::ListView(const Message::ListView &list_view,
 	if (desired_height == Dimension::FILL_PARENT) {
 		set_valign(Gtk::Align::FILL);
 	}
+}
+
+Glib::RefPtr<Poly::ListView>
+Poly::ListView::create(const Message::ListView &list_view,
+					   std::shared_ptr<Application> app) {
+	return Glib::make_refptr_for_instance<ListView>(
+		new ListView(list_view, std::move(app)));
 }
 
 void Poly::ListView::create_list_item(

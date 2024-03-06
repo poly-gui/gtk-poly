@@ -7,7 +7,7 @@
 #include "button.hxx"
 
 Poly::Button::Button(const Message::Button &button,
-                     std::shared_ptr<Application> app)
+					 std::shared_ptr<Application> app)
 	: Gtk::Button(button.text), tag(button.tag.has_value() ? *button.tag : -1),
 	  on_click_handle(button.on_click) {
 	set_halign(Gtk::Align::START);
@@ -19,20 +19,20 @@ Poly::Button::Button(const Message::Button &button,
 			const Message::ClickEvent click_event(
 				std::chrono::duration_cast<std::chrono::seconds>(
 					now.time_since_epoch())
-				.count());
+					.count());
 
 			app->portable_layer().invoke_callback(on_click_handle, click_event);
 		});
 }
 
-std::unique_ptr<Poly::Button>
-Poly::make_button(const Message::Button &button,
-                  std::shared_ptr<Application> app) {
-	auto btn = std::make_unique<Button>(button, std::move(app));
-	return btn;
+Glib::RefPtr<Poly::Button>
+Poly::Button::create(const Message::Button &button,
+					 std::shared_ptr<Application> app) {
+	return Glib::make_refptr_for_instance<Button>(
+		new Button(button, std::move(app)));
 }
 
-void Poly::update_button(Button &button, const Message::Button &new_config) {
-	button.set_label(new_config.text);
-	button.on_click_handle = new_config.on_click;
+void Poly::Button::update(const Message::Button &msg) {
+	set_label(msg.text);
+	on_click_handle = msg.on_click;
 }

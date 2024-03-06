@@ -4,9 +4,8 @@
 
 #include <iostream>
 
-std::shared_ptr<Gtk::Widget>
-Poly::make_center(const Message::Center &center,
-                  std::shared_ptr<Application> app) {
+Glib::RefPtr<Gtk::Widget> Poly::make_center(const Message::Center &center,
+											std::shared_ptr<Application> app) {
 	auto widget = make_widget(center.get_child(), std::move(app));
 	if (widget->get_halign() != Gtk::Align::FILL) {
 		widget->set_halign(Gtk::Align::CENTER);

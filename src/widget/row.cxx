@@ -6,7 +6,7 @@
 
 #include <gtkmm/label.h>
 
-Poly::Row::Row(const Message::Row &row)
+Poly::Row::Row(const Message::Row &row, std::shared_ptr<Application> app)
 	: Box(Gtk::Orientation::HORIZONTAL, 0),
 	  tag(row.tag.has_value() ? *row.tag : 0) {
 	const int desired_width = static_cast<int>(round(row.width));
@@ -89,6 +89,16 @@ Poly::Row::Row(const Message::Row &row)
 	if (is_size_request_required) {
 		set_size_request(desired_width, desired_height);
 	}
+
+	for (const std::unique_ptr<Message::Widget> &child : row.children) {
+		Glib::RefPtr<Gtk::Widget> widget = make_widget(*child, app);
+		append(std::move(widget));
+	}
+}
+
+Glib::RefPtr<Poly::Row> Poly::Row::create(const Message::Row &msg,
+										  std::shared_ptr<Application> app) {
+	return Glib::make_refptr_for_instance<Row>(new Row(msg, std::move(app)));
 }
 
 void Poly::Row::append(std::shared_ptr<Widget> widget) {
@@ -121,14 +131,4 @@ void Poly::Row::append(std::shared_ptr<Widget> widget) {
 		append(*widget);
 	}
 	children.emplace_back(std::move(widget));
-}
-
-std::unique_ptr<Poly::Row> Poly::make_row(const Message::Row &row,
-										  std::shared_ptr<Application> app) {
-	auto _row = std::make_unique<Row>(row);
-	for (const std::unique_ptr<Message::Widget> &child : row.children) {
-		std::shared_ptr<Gtk::Widget> widget = make_widget(*child, app);
-		_row->append(std::move(widget));
-	}
-	return _row;
 }

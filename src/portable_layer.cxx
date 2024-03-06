@@ -160,7 +160,7 @@ void Poly::PortableLayer::reply_to_callback(
 		return;
 
 	auto promise = std::move(entry->second);
-	promise.set_value(msg->args);
+	promise.set_value(std::move(msg->args));
 
 	pending_callback.erase(msg->to);
 }

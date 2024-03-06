@@ -13,12 +13,15 @@
 
 namespace Poly {
 class Text final : public Gtk::Label {
+  protected:
+	Text(const Message::Text &msg);
+
   public:
 	int32_t tag;
 
-	Text(const Message::Text &msg);
-
 	static Glib::RefPtr<Text> create(const Message::Text &msg);
+
+	void update(const Message::Text &msg);
 };
 
 std::unique_ptr<Text> make_text(const Message::Text &msg,

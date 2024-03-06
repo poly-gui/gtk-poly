@@ -5,6 +5,7 @@
 #ifndef GTKPOLY_COLUMN_HXX
 #define GTKPOLY_COLUMN_HXX
 
+#include <glibmm/refptr.h>
 #include <gtkmm/box.h>
 #include <gtkpoly/application.hxx>
 #include <memory>
@@ -20,17 +21,18 @@ class Column final : public Gtk::Box {
 
 	bool has_spacer;
 
+  protected:
+	Column(const Message::Column &msg, std::shared_ptr<Application> app);
+
   public:
 	int32_t tag;
 
-	explicit Column(const Message::Column &column);
+	static Glib::RefPtr<Column> create(const Message::Column &msg,
+									   std::shared_ptr<Application> app);
 
 	using Box::append;
 	void append(std::shared_ptr<Widget> widget);
 };
-
-std::unique_ptr<Column> make_column(const Message::Column &column,
-									std::shared_ptr<Application> app);
 
 } // namespace Poly
 

@@ -16,18 +16,18 @@
 void Poly::update_widget(Gtk::Widget &old_widget, Message::Widget &new_config) {
 	switch (new_config.type_id()) {
 	case Message::Text::TYPE_ID:
-		update_text(static_cast<Text &>(old_widget),
-					static_cast<Message::Text &>(new_config));
+		static_cast<Text &>(old_widget)
+			.update(static_cast<Message::Text &>(new_config));
 		break;
 
 	case Message::Button::TYPE_ID:
-		update_button(static_cast<Button &>(old_widget),
-					  static_cast<Message::Button &>(new_config));
+		static_cast<Button &>(old_widget)
+			.update(static_cast<Message::Button &>(new_config));
 		break;
 
 	case Message::TextField::TYPE_ID:
-		update_text_field(static_cast<TextField &>(old_widget),
-						  static_cast<Message::TextField &>(new_config));
+		static_cast<TextField &>(old_widget)
+			.update(static_cast<Message::TextField &>(new_config));
 		break;
 
 	default:

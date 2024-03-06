@@ -18,6 +18,8 @@ Glib::RefPtr<Poly::Text> Poly::Text::create(const Message::Text &msg) {
 	return Glib::make_refptr_for_instance<Text>(new Text(msg));
 }
 
+void Poly::Text::update(const Message::Text &msg) { set_text(msg.content); }
+
 void Poly::update_text(Text &text, const Message::Text &new_config) {
 	text.set_text(new_config.content);
 }

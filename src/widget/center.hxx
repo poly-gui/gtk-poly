@@ -5,6 +5,7 @@
 #ifndef GTKPOLY_CENTER_HXX
 #define GTKPOLY_CENTER_HXX
 
+#include <glibmm/refptr.h>
 #include <gtkmm/widget.h>
 #include <gtkpoly/application.hxx>
 #include <memory>
@@ -13,8 +14,8 @@
 
 namespace Poly {
 
-std::shared_ptr<Gtk::Widget> make_center(const Message::Center &center,
-										 std::shared_ptr<Application> app);
+Glib::RefPtr<Gtk::Widget> make_center(const Message::Center &center,
+									  std::shared_ptr<Application> app);
 
 }
 

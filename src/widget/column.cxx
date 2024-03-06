@@ -10,7 +10,8 @@
 
 #include <iostream>
 
-Poly::Column::Column(const Message::Column &column)
+Poly::Column::Column(const Message::Column &column,
+					 std::shared_ptr<Application> app)
 	: Box(Gtk::Orientation::VERTICAL, 0),
 	  tag(column.tag.has_value() ? *column.tag : 0) {
 	const int desired_width = static_cast<int>(round(column.width));
@@ -91,6 +92,18 @@ Poly::Column::Column(const Message::Column &column)
 	if (is_size_request_required) {
 		set_size_request(desired_width, desired_height);
 	}
+
+	for (const std::unique_ptr<Message::Widget> &child : column.children) {
+		std::shared_ptr<Gtk::Widget> widget = make_widget(*child, app);
+		append(std::move(widget));
+	}
+}
+
+Glib::RefPtr<Poly::Column>
+Poly::Column::create(const Message::Column &msg,
+					 std::shared_ptr<Application> app) {
+	return Glib::make_refptr_for_instance<Column>(
+		new Column(msg, std::move(app)));
 }
 
 void Poly::Column::append(std::shared_ptr<Widget> widget) {
@@ -123,15 +136,4 @@ void Poly::Column::append(std::shared_ptr<Widget> widget) {
 		append(*widget);
 	}
 	children.emplace_back(std::move(widget));
-}
-
-std::unique_ptr<Poly::Column>
-Poly::make_column(const Message::Column &column,
-				  std::shared_ptr<Application> app) {
-	auto col = std::make_unique<Column>(column);
-	for (const std::unique_ptr<Message::Widget> &child : column.children) {
-		std::shared_ptr<Gtk::Widget> widget = make_widget(*child, app);
-		col->append(std::move(widget));
-	}
-	return col;
 }

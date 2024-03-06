@@ -12,12 +12,14 @@
 
 namespace Poly {
 
-class __ListViewPlaceholderItemObjectDoNotUseOrGetFired__ : public Glib::Object {
+class __ListViewPlaceholderItemObjectDoNotUseOrGetFired__
+	: public Glib::Object {
   protected:
 	__ListViewPlaceholderItemObjectDoNotUseOrGetFired__();
 
   public:
-	static Glib::RefPtr<__ListViewPlaceholderItemObjectDoNotUseOrGetFired__> create();
+	static Glib::RefPtr<__ListViewPlaceholderItemObjectDoNotUseOrGetFired__>
+	create();
 };
 
 class ListView final : public Gtk::ScrolledWindow {
@@ -33,13 +35,17 @@ class ListView final : public Gtk::ScrolledWindow {
 
 	void bind_list_item(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
+  protected:
+	ListView(const Message::ListView &list_view,
+			 std::shared_ptr<Application> app);
+
   public:
 	int32_t tag;
 
 	uint32_t item_height;
 
-	ListView(const Message::ListView &list_view,
-			 std::shared_ptr<Application> app);
+	static Glib::RefPtr<ListView> create(const Message::ListView &list_view,
+										 std::shared_ptr<Application> app);
 };
 
 } // namespace Poly

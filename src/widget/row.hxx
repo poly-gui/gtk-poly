@@ -15,17 +15,18 @@ class Row final : public Gtk::Box {
 
 	bool has_spacer;
 
+  protected:
+	Row(const Message::Row &row, std::shared_ptr<Application> app);
+
   public:
 	int32_t tag;
 
-	explicit Row(const Message::Row &row);
+	static Glib::RefPtr<Row> create(const Message::Row &msg,
+									std::shared_ptr<Application> app);
 
 	using Box::append;
 	void append(std::shared_ptr<Widget> widget);
 };
-
-std::unique_ptr<Row> make_row(const Message::Row &row,
-							  std::shared_ptr<Application> app);
 
 } // namespace Poly
 
