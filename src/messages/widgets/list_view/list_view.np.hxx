@@ -17,7 +17,7 @@ struct ListView : Widget {
 
   double width;
   double height;
-  std::vector<int32_t> sections;
+  std::vector<uint32_t> sections;
   double item_height;
   int32_t on_create;
   int32_t on_bind;
@@ -25,8 +25,8 @@ struct ListView : Widget {
   ListView() = default;
 
   ListView(std::optional<int32_t> tag, double width, double height,
-           std::vector<int32_t> sections, double item_height, int32_t on_create,
-           int32_t on_bind);
+           std::vector<uint32_t> sections, double item_height,
+           int32_t on_create, int32_t on_bind);
 
   ListView(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 

@@ -7,21 +7,23 @@
 #include "../messages/widgets/column.np.hxx"
 #include "../messages/widgets/row.np.hxx"
 #include "../messages/widgets/text.np.hxx"
+#include "../messages/widgets/list_view/list_view.np.hxx"
 #include "../messages/widgets/text_field/text_field.np.hxx"
 #include "button.hxx"
 #include "center.hxx"
 #include "column.hxx"
+#include "list_view.hxx"
 #include "row.hxx"
 #include "text.hxx"
 #include "text_field.hxx"
 
-std::shared_ptr<Gtk::Widget>
+Glib::RefPtr<Gtk::Widget>
 Poly::make_widget(Message::Widget &widget, std::shared_ptr<Application> app) {
-	std::shared_ptr<Gtk::Widget> w;
+	Glib::RefPtr<Gtk::Widget> w;
 
 	switch (widget.type_id()) {
 	case Message::Text::TYPE_ID:
-		w = make_text(static_cast<Message::Text &>(widget), app);
+		w = Poly::Text::create(static_cast<Message::Text &>(widget));
 		break;
 
 	case Message::Row::TYPE_ID:
@@ -44,10 +46,15 @@ Poly::make_widget(Message::Widget &widget, std::shared_ptr<Application> app) {
 		w = make_text_field(static_cast<Message::TextField &>(widget), app);
 		break;
 
+	case Message::ListView::TYPE_ID:
+		w = std::make_unique<ListView>(static_cast<Message::ListView &>(widget),
+		                               app);
+		break;
+
 	default:
 #ifdef DEBUG
 		std::cout << "WARNING: unsupported widget type, type ID: "
-				  << widget.type_id();
+			<< widget.type_id();
 #endif
 		return nullptr;
 	}

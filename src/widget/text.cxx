@@ -4,18 +4,18 @@
 
 #include "text.hxx"
 
-#include <glibmm/main.h>
+#include <glibmm/objectbase.h>
 
-std::unique_ptr<Poly::Text> Poly::make_text(const Message::Text &msg,
-                                            std::shared_ptr<Application> app) {
-	auto text = std::make_unique<Text>();
-	if (msg.tag.has_value()) {
-		text->tag = *msg.tag;
-	}
-	text->set_halign(Gtk::Align::START);
-	text->set_valign(Gtk::Align::START);
-	text->set_text(msg.content);
-	return text;
+Poly::Text::Text(const Message::Text &msg)
+	: Glib::ObjectBase(typeid(Poly::Text)), Label(),
+	  tag(msg.tag.has_value() ? *msg.tag : -1) {
+	set_halign(Gtk::Align::START);
+	set_valign(Gtk::Align::START);
+	set_text(msg.content);
+}
+
+Glib::RefPtr<Poly::Text> Poly::Text::create(const Message::Text &msg) {
+	return Glib::make_refptr_for_instance<Text>(new Text(msg));
 }
 
 void Poly::update_text(Text &text, const Message::Text &new_config) {

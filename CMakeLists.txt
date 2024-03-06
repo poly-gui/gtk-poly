@@ -37,7 +37,10 @@ add_library(gtkpoly STATIC
         src/messages/widgets/list_view/list_view_insert_operation.np.cxx
         src/messages/widgets/list_view/list_view_delete_operation.np.cxx
         src/messages/widgets/list_view/make_list_view_operation.np.cxx
-        src/messages/widgets/list_view/render_item_config.np.cxx
+        src/messages/widgets/list_view/list_view_item.np.cxx
+        src/messages/widgets/list_view/list_view_item_config.np.cxx
+        src/messages/request.np.cxx
+        src/messages/ok_response.np.cxx
         src/window/window.cxx
         src/window/window_manager.cxx
         src/portable_layer.cxx

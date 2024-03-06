@@ -6,7 +6,7 @@
 #include "list_view.np.hxx"
 
 Poly::Message::ListView::ListView(std::optional<int32_t> tag, double width,
-                                  double height, std::vector<int32_t> sections,
+                                  double height, std::vector<uint32_t> sections,
                                   double item_height, int32_t on_create,
                                   int32_t on_bind)
     : Widget(tag), width(width), height(height), sections(std::move(sections)),
@@ -34,12 +34,12 @@ Poly::Message::ListView::ListView(const NanoPack::Reader &reader,
   ptr += 8;
   this->height = height;
 
-  const int32_t sections_vec_size = sections_byte_size / 4;
   const int32_t sections_byte_size = reader.read_field_size(3);
-  std::vector<int32_t> sections;
+  const int32_t sections_vec_size = sections_byte_size / 4;
+  std::vector<uint32_t> sections;
   sections.reserve(sections_vec_size);
   for (int i = 0; i < sections_vec_size; i++) {
-    const int32_t i_item = reader.read_int32(ptr);
+    const uint32_t i_item = reader.read_uint32(ptr);
     ptr += 4;
     sections.emplace_back(std::move(i_item));
   }
@@ -88,7 +88,7 @@ std::vector<uint8_t> Poly::Message::ListView::data() const {
 
   writer.write_field_size(3, sections.size() * 4);
   for (const auto &i : sections) {
-    writer.append_int32(i);
+    writer.append_uint32(i);
   }
 
   writer.write_field_size(4, 8);
@@ -125,7 +125,7 @@ std::vector<uint8_t> Poly::Message::ListView::data_with_length_prefix() const {
 
   writer.write_field_size(3, sections.size() * 4);
   for (const auto &i : sections) {
-    writer.append_int32(i);
+    writer.append_uint32(i);
   }
 
   writer.write_field_size(4, 8);

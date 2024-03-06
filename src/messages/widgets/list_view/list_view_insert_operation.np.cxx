@@ -19,8 +19,8 @@ Poly::Message::ListViewInsertOperation::ListViewInsertOperation(
   ptr += 4;
   this->tag = tag;
 
-  const int32_t insert_at_vec_size = insert_at_byte_size / 4;
   const int32_t insert_at_byte_size = reader.read_field_size(1);
+  const int32_t insert_at_vec_size = insert_at_byte_size / 4;
   std::vector<int32_t> insert_at;
   insert_at.reserve(insert_at_vec_size);
   for (int i = 0; i < insert_at_vec_size; i++) {

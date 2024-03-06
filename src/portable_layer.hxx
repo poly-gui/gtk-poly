@@ -6,7 +6,6 @@
 #define GTKPOLY_PORTABLE_LAYER_HXX
 
 #include "messages/reply_from_callback.np.hxx"
-#include "nanopack/any.hxx"
 #include "random.hxx"
 
 #include <cstdint>
@@ -14,55 +13,57 @@
 #include <functional>
 #include <future>
 #include <memory>
+#include <nanopack/any.hxx>
+#include <nanopack/message.hxx>
 #include <unordered_map>
 #include <vector>
 
-namespace Poly
-{
-    typedef std::function<void(std::unique_ptr<NanoPack::Message> message)>
-    MessageHandler;
-    typedef std::function<void(int error)> ErrorHandler;
-    typedef std::function<void(NanoPack::Any retval)> CallbackReturn;
+namespace Poly {
 
-    class PortableLayer
-    {
-        int pid;
-        int stdin_handle;
-        int stdout_handle;
-        std::filesystem::path bin_path;
-        std::unordered_map<int32_t, std::promise<NanoPack::Any>> pending_callback;
-        Random<int32_t> random_reply_handle;
+typedef std::function<void(std::unique_ptr<NanoPack::Message> message)>
+	MessageHandler;
+typedef std::function<void(int error)> ErrorHandler;
+typedef std::function<void(NanoPack::Any retval)> CallbackReturn;
 
-        MessageHandler message_handler;
-        ErrorHandler error_handler;
+/// @brief Provides an interface to interact with the portable layer, such as sending/receiving messages.
+class PortableLayer {
+	int pid;
+	int stdin_handle;
+	int stdout_handle;
+	std::filesystem::path bin_path;
+	std::unordered_map<int32_t, std::promise<NanoPack::Any>> pending_callback;
+	Random<int32_t> random_reply_handle;
 
-        void read_portable_layer_stdout();
+	MessageHandler message_handler;
+	ErrorHandler error_handler;
 
-        void reply_to_callback(const Message::ReplyFromCallback* msg);
+	void read_portable_layer_stdout();
 
-        void handle_message(std::vector<uint8_t> msg_bytes);
+	void reply_to_callback(const Message::ReplyFromCallback *msg);
 
-    public:
-        explicit PortableLayer(std::filesystem::path bin_path);
+	void handle_message(std::vector<uint8_t> msg_bytes);
 
-        void send_message(const NanoPack::Message& message) const;
+	void handle_request(std::unique_ptr<NanoPack::Message> message);
 
-        void invoke_callback(int32_t callback_handle, NanoPack::Any args) const;
+  public:
+	explicit PortableLayer(std::filesystem::path bin_path);
 
-        std::future<NanoPack::Any> invoke_callback_with_result(int32_t callback_handle,
-                                                               NanoPack::Any args);
+	void send_message(const NanoPack::Message &message) const;
 
-        void on_message(const MessageHandler& handler);
+	void invoke_callback(int32_t callback_handle, NanoPack::Any args) const;
 
-        void on_error(const ErrorHandler& handler);
+	std::future<NanoPack::Any>
+	invoke_callback_with_result(int32_t callback_handle, NanoPack::Any args);
 
-        /**
-         * \brief Spawns the portable layer in a child process.
-         */
-        void spawn();
+	void on_message(const MessageHandler &handler);
 
-        void terminate();
-    };
+	void on_error(const ErrorHandler &handler);
+
+	/// @brief Spawns the portable layer in a child process. This must be called before you can do anything else with the portable layer.
+	void spawn();
+
+	void terminate();
+};
 } // namespace Poly
 
 #endif // GTKPOLY_PORTABLE_LAYER_HXX

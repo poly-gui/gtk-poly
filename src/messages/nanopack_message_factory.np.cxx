@@ -4,7 +4,9 @@
 
 #include "create_window.np.hxx"
 #include "invoke_callback.np.hxx"
+#include "ok_response.np.hxx"
 #include "reply_from_callback.np.hxx"
+#include "request.np.hxx"
 #include "widgets/button/button.np.hxx"
 #include "widgets/button/click_event.np.hxx"
 #include "widgets/center.np.hxx"
@@ -14,8 +16,9 @@
 #include "widgets/list_view/list_view_batch_operations.np.hxx"
 #include "widgets/list_view/list_view_delete_operation.np.hxx"
 #include "widgets/list_view/list_view_insert_operation.np.hxx"
+#include "widgets/list_view/list_view_item.np.hxx"
+#include "widgets/list_view/list_view_item_config.np.hxx"
 #include "widgets/list_view/list_view_operation.np.hxx"
-#include "widgets/list_view/render_item_config.np.hxx"
 #include "widgets/row.np.hxx"
 #include "widgets/text.np.hxx"
 #include "widgets/text_field/on_value_changed.np.hxx"
@@ -37,10 +40,16 @@ std::unique_ptr<NanoPack::Message> Poly::Message::make_nanopack_message(
     return std::make_unique<ClickEvent>(reader, bytes_read);
   case 841129444:
     return std::make_unique<TextField>(reader, bytes_read);
+  case 879254966:
+    return std::make_unique<Request>(reader, bytes_read);
   case 1006836449:
     return std::make_unique<Row>(reader, bytes_read);
   case 1016534798:
     return std::make_unique<UpdateWidget>(reader, bytes_read);
+  case 1100735111:
+    return std::make_unique<ListViewItem>(reader, bytes_read);
+  case 1144955386:
+    return std::make_unique<OkResponse>(reader, bytes_read);
   case 1676374721:
     return std::make_unique<Widget>(reader, bytes_read);
   case 1768749598:
@@ -65,10 +74,10 @@ std::unique_ptr<NanoPack::Message> Poly::Message::make_nanopack_message(
     return std::make_unique<ListViewOperation>(reader, bytes_read);
   case 3533765426:
     return std::make_unique<CreateWindow>(reader, bytes_read);
-  case 3591753548:
-    return std::make_unique<RenderItemConfig>(reader, bytes_read);
   case 3604546751:
     return std::make_unique<ListViewBatchOperations>(reader, bytes_read);
+  case 4128951807:
+    return std::make_unique<ListViewItemConfig>(reader, bytes_read);
   default:
     return nullptr;
   }

@@ -19,8 +19,8 @@ Poly::Message::ListViewDeleteOperation::ListViewDeleteOperation(
   ptr += 4;
   this->tag = tag;
 
-  const int32_t delete_at_vec_size = delete_at_byte_size / 4;
   const int32_t delete_at_byte_size = reader.read_field_size(1);
+  const int32_t delete_at_vec_size = delete_at_byte_size / 4;
   std::vector<int32_t> delete_at;
   delete_at.reserve(delete_at_vec_size);
   for (int i = 0; i < delete_at_vec_size; i++) {

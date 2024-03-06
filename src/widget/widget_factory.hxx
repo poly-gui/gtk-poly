@@ -6,12 +6,12 @@
 #define GTKPOLY_WIDGET_FACTORY_HXX
 #include "../messages/widgets/widget.np.hxx"
 
+#include <glibmm/refptr.h>
 #include <gtkpoly/application.hxx>
-#include <memory>
 
 namespace Poly {
 
-std::shared_ptr<Gtk::Widget> make_widget(Message::Widget &widget,
+Glib::RefPtr<Gtk::Widget> make_widget(Message::Widget &widget,
 										 std::shared_ptr<Application> app);
 
 }

@@ -10,6 +10,8 @@
 
 #include "messages/invoke_callback.np.hxx"
 #include "messages/reply_from_callback.np.hxx"
+#include "messages/request.np.hxx"
+#include "messages/ok_response.np.hxx"
 
 #include <iostream>
 #include <thread>
@@ -38,8 +40,8 @@ Poly::PortableLayer::invoke_callback_with_result(const int32_t callback_handle,
 												 NanoPack::Any args) {
 	std::promise<NanoPack::Any> promise;
 	auto future = promise.get_future();
-	int32_t reply_handle = random_reply_handle.generate();
 
+	int32_t reply_handle = random_reply_handle.generate();
 	pending_callback[reply_handle] = std::move(promise);
 
 	const Message::InvokeCallback invoke_callback(
@@ -134,11 +136,14 @@ void Poly::PortableLayer::read_portable_layer_stdout() {
 		msg_size |= msg_size_buf[1] << 8;
 		msg_size |= msg_size_buf[2] << 16;
 		msg_size |= msg_size_buf[3] << 24;
-
 		std::vector<uint8_t> msg_bytes(msg_size);
 		if (const long status = read(stdout_handle, msg_bytes.data(), msg_size);
 			status > 0) {
-			handle_message(std::move(msg_bytes));
+			// for each message received from the portable layer
+			// spawn a new thread to handle the message.
+			std::thread t(&PortableLayer::handle_message, this,
+						  std::move(msg_bytes));
+			t.detach();
 		} else if (status == 0) {
 			// unexpected EOF, pipe closed unexpectedly
 			// TODO: handle this
@@ -165,17 +170,35 @@ void Poly::PortableLayer::handle_message(std::vector<uint8_t> msg_bytes) {
 	std::unique_ptr<NanoPack::Message> message =
 		Message::make_nanopack_message(msg_bytes.begin(), bytes_read);
 	if (message == nullptr) {
-#ifdef DEBUG
 		const std::string verbose(msg_bytes.begin(), msg_bytes.end());
 		std::cout << "VERBOSE: " << verbose << std::endl;
-#endif
 		return;
 	}
 
-	if (message->type_id() == Message::ReplyFromCallback::TYPE_ID) {
+	switch (message->type_id()) {
+	case Message::Request::TYPE_ID:
+		handle_request(std::move(message));
+		break;
+
+	default:
+		break;
+	}
+}
+
+void Poly::PortableLayer::handle_request(
+	std::unique_ptr<NanoPack::Message> message) {
+	const auto request = static_cast<Message::Request *>(message.get());
+
+	std::vector<uint8_t> body_data = std::move(request->body.data());
+	int bytes_read;
+	std::unique_ptr<NanoPack::Message> message_body = Message::make_nanopack_message(body_data.begin(), bytes_read);
+
+	if (message_body->type_id() == Message::ReplyFromCallback::TYPE_ID) {
 		reply_to_callback(
-			static_cast<Message::ReplyFromCallback *>(message.get()));
+			static_cast<Message::ReplyFromCallback *>(message_body.get()));
 	} else if (message_handler != nullptr) {
-		message_handler(std::move(message));
+		message_handler(std::move(message_body));
+		const Message::OkResponse ok_response(request->id, std::nullopt);
+		send_message(ok_response);
 	}
 }
