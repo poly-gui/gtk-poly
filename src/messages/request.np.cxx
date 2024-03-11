@@ -30,38 +30,29 @@ Poly::Message::Request::Request(std::vector<uint8_t>::const_iterator begin,
 
 NanoPack::TypeId Poly::Message::Request::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Poly::Message::Request::data() const {
-  std::vector<uint8_t> buf(12);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::Request::header_size() const { return 12; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::Request::write_to(std::vector<uint8_t> &buf,
+                                        int offset) const {
+  size_t bytes_written = 12;
 
-  writer.write_field_size(0, 4);
-  writer.append_uint32(id);
+  buf.resize(offset + 12);
 
-  writer.write_field_size(1, body.size());
-  writer.append_bytes(body.data());
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
-  return buf;
+  NanoPack::write_field_size(0, 4, offset, buf);
+  NanoPack::append_uint32(id, buf);
+  bytes_written += 4;
+
+  NanoPack::write_field_size(1, body.size(), offset, buf);
+  NanoPack::append_bytes(body.data(), buf);
+  bytes_written += body.size();
+
+  return bytes_written;
 }
 
-std::vector<uint8_t> Poly::Message::Request::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(12 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  writer.write_field_size(0, 4);
-  writer.append_uint32(id);
-
-  writer.write_field_size(1, body.size());
-  writer.append_bytes(body.data());
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::Request::data() const {
+  std::vector<uint8_t> buf(12);
+  write_to(buf, 0);
   return buf;
 }

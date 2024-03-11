@@ -50,70 +50,47 @@ Poly::Message::TextField::TextField(std::vector<uint8_t>::const_iterator begin,
 
 NanoPack::TypeId Poly::Message::TextField::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Poly::Message::TextField::data() const {
-  std::vector<uint8_t> buf(20);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::TextField::header_size() const { return 20; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::TextField::write_to(std::vector<uint8_t> &buf,
+                                          int offset) const {
+  size_t bytes_written = 20;
+
+  buf.resize(offset + 20);
+
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
   if (tag.has_value()) {
     const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
+    NanoPack::write_field_size(0, 4, offset, buf);
+    NanoPack::append_int32(tag, buf);
+    bytes_written += 4;
   } else {
-    writer.write_field_size(0, -1);
+    NanoPack::write_field_size(0, -1, offset, buf);
   }
 
   if (placeholder.has_value()) {
     const auto placeholder = this->placeholder.value();
-    writer.write_field_size(1, placeholder.size());
-    writer.append_string(placeholder);
+    NanoPack::write_field_size(1, placeholder.size(), offset, buf);
+    NanoPack::append_string(placeholder, buf);
+    bytes_written += placeholder.size();
   } else {
-    writer.write_field_size(1, -1);
+    NanoPack::write_field_size(1, -1, offset, buf);
   }
 
-  writer.write_field_size(2, value.size());
-  writer.append_string(value);
+  NanoPack::write_field_size(2, value.size(), offset, buf);
+  NanoPack::append_string(value, buf);
+  bytes_written += value.size();
 
-  writer.write_field_size(3, 4);
-  writer.append_int32(on_value_changed);
+  NanoPack::write_field_size(3, 4, offset, buf);
+  NanoPack::append_int32(on_value_changed, buf);
+  bytes_written += 4;
 
-  return buf;
+  return bytes_written;
 }
 
-std::vector<uint8_t> Poly::Message::TextField::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(20 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  if (tag.has_value()) {
-    const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
-  } else {
-    writer.write_field_size(0, -1);
-  }
-
-  if (placeholder.has_value()) {
-    const auto placeholder = this->placeholder.value();
-    writer.write_field_size(1, placeholder.size());
-    writer.append_string(placeholder);
-  } else {
-    writer.write_field_size(1, -1);
-  }
-
-  writer.write_field_size(2, value.size());
-  writer.append_string(value);
-
-  writer.write_field_size(3, 4);
-  writer.append_int32(on_value_changed);
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::TextField::data() const {
+  std::vector<uint8_t> buf(20);
+  write_to(buf, 0);
   return buf;
 }

@@ -34,48 +34,34 @@ Poly::Message::Text::Text(std::vector<uint8_t>::const_iterator begin,
 
 NanoPack::TypeId Poly::Message::Text::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Poly::Message::Text::data() const {
-  std::vector<uint8_t> buf(12);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::Text::header_size() const { return 12; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::Text::write_to(std::vector<uint8_t> &buf,
+                                     int offset) const {
+  size_t bytes_written = 12;
+
+  buf.resize(offset + 12);
+
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
   if (tag.has_value()) {
     const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
+    NanoPack::write_field_size(0, 4, offset, buf);
+    NanoPack::append_int32(tag, buf);
+    bytes_written += 4;
   } else {
-    writer.write_field_size(0, -1);
+    NanoPack::write_field_size(0, -1, offset, buf);
   }
 
-  writer.write_field_size(1, content.size());
-  writer.append_string(content);
+  NanoPack::write_field_size(1, content.size(), offset, buf);
+  NanoPack::append_string(content, buf);
+  bytes_written += content.size();
 
-  return buf;
+  return bytes_written;
 }
 
-std::vector<uint8_t> Poly::Message::Text::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(12 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  if (tag.has_value()) {
-    const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
-  } else {
-    writer.write_field_size(0, -1);
-  }
-
-  writer.write_field_size(1, content.size());
-  writer.append_string(content);
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::Text::data() const {
+  std::vector<uint8_t> buf(12);
+  write_to(buf, 0);
   return buf;
 }

@@ -38,47 +38,32 @@ NanoPack::TypeId Poly::Message::ListViewBatchOperations::type_id() const {
   return TYPE_ID;
 }
 
-std::vector<uint8_t> Poly::Message::ListViewBatchOperations::data() const {
-  std::vector<uint8_t> buf(8);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::ListViewBatchOperations::header_size() const { return 8; }
 
-  writer.write_type_id(TYPE_ID);
+size_t
+Poly::Message::ListViewBatchOperations::write_to(std::vector<uint8_t> &buf,
+                                                 int offset) const {
+  size_t bytes_written = 8;
+
+  buf.resize(offset + 8);
+
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
   const size_t operations_vec_size = operations.size();
-  writer.append_int32(operations_vec_size);
+  NanoPack::append_int32(operations_vec_size, buf);
   int32_t operations_byte_size = sizeof(int32_t);
   for (auto &i : operations) {
-    const std::vector<uint8_t> i_data = i->data();
-    writer.append_bytes(i_data);
-    operations_byte_size += i_data.size();
+    const size_t i_byte_size = i->write_to(buf, buf.size());
+    operations_byte_size += i_byte_size;
   }
-  writer.write_field_size(0, operations_byte_size);
+  NanoPack::write_field_size(0, operations_byte_size, offset, buf);
+  bytes_written += operations_byte_size;
 
-  return buf;
+  return bytes_written;
 }
 
-std::vector<uint8_t>
-Poly::Message::ListViewBatchOperations::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(8 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  const size_t operations_vec_size = operations.size();
-  writer.append_int32(operations_vec_size);
-  int32_t operations_byte_size = sizeof(int32_t);
-  for (auto &i : operations) {
-    const std::vector<uint8_t> i_data = i->data();
-    writer.append_bytes(i_data);
-    operations_byte_size += i_data.size();
-  }
-  writer.write_field_size(0, operations_byte_size);
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::ListViewBatchOperations::data() const {
+  std::vector<uint8_t> buf(8);
+  write_to(buf, 0);
   return buf;
 }

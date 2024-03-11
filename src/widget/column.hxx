@@ -17,8 +17,7 @@ namespace Poly {
 class Column final : public Gtk::Box {
 	Gtk::Align horizontal_alignment;
 	Gtk::Align vertical_alignment;
-	std::vector<std::shared_ptr<Widget>> children;
-
+	int children_count = 0;
 	bool has_spacer;
 
   protected:
@@ -31,7 +30,7 @@ class Column final : public Gtk::Box {
 									   std::shared_ptr<Application> app);
 
 	using Box::append;
-	void append(std::shared_ptr<Widget> widget);
+	void append(const std::shared_ptr<Widget>& widget);
 };
 
 } // namespace Poly

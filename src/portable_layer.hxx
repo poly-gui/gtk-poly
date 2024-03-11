@@ -16,23 +16,29 @@
 #include <nanopack/any.hxx>
 #include <nanopack/message.hxx>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 namespace Poly {
+
+typedef uint32_t RequestId;
 
 typedef std::function<void(std::unique_ptr<NanoPack::Message> message)>
 	MessageHandler;
 typedef std::function<void(int error)> ErrorHandler;
 typedef std::function<void(NanoPack::Any retval)> CallbackReturn;
 
-/// @brief Provides an interface to interact with the portable layer, such as sending/receiving messages.
+/// @brief Provides an interface to interact with the portable layer, such as
+/// sending/receiving messages.
 class PortableLayer {
 	int pid;
 	int stdin_handle;
 	int stdout_handle;
 	std::filesystem::path bin_path;
+	std::unordered_set<RequestId> pending_request_ids;
 	std::unordered_map<int32_t, std::promise<NanoPack::Any>> pending_callback;
 	Random<int32_t> random_reply_handle;
+	Random<RequestId> random_request_id;
 
 	MessageHandler message_handler;
 	ErrorHandler error_handler;
@@ -41,16 +47,20 @@ class PortableLayer {
 
 	void reply_to_callback(const Message::ReplyFromCallback *msg);
 
-	void handle_message(std::vector<uint8_t> msg_bytes);
+	void handle_message(RequestId request_id, std::vector<uint8_t> msg_bytes);
 
-	void handle_request(std::unique_ptr<NanoPack::Message> message);
+	void handle_request_ack(RequestId request_id);
+
+	void send_request_ack(RequestId request_id) const;
+
+	RequestId generate_request_id();
 
   public:
 	explicit PortableLayer(std::filesystem::path bin_path);
 
-	void send_message(const NanoPack::Message &message) const;
+	void send_message(const NanoPack::Message &message);
 
-	void invoke_callback(int32_t callback_handle, NanoPack::Any args) const;
+	void invoke_callback(int32_t callback_handle, NanoPack::Any args);
 
 	std::future<NanoPack::Any>
 	invoke_callback_with_result(int32_t callback_handle, NanoPack::Any args);
@@ -59,7 +69,8 @@ class PortableLayer {
 
 	void on_error(const ErrorHandler &handler);
 
-	/// @brief Spawns the portable layer in a child process. This must be called before you can do anything else with the portable layer.
+	/// @brief Spawns the portable layer in a child process. This must be called
+	/// before you can do anything else with the portable layer.
 	void spawn();
 
 	void terminate();

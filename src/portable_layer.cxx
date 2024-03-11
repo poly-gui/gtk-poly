@@ -3,15 +3,16 @@
 //
 
 #include <csignal>
+#include <nanopack/writer.hxx>
 #include <unistd.h>
 
 #include "messages/nanopack_message_factory.np.hxx"
 #include "portable_layer.hxx"
 
 #include "messages/invoke_callback.np.hxx"
+#include "messages/ok_response.np.hxx"
 #include "messages/reply_from_callback.np.hxx"
 #include "messages/request.np.hxx"
-#include "messages/ok_response.np.hxx"
 
 #include <iostream>
 #include <thread>
@@ -21,15 +22,30 @@ Poly::PortableLayer::PortableLayer(std::filesystem::path bin_path)
 	: pid(-1), stdin_handle(-1), stdout_handle(-1),
 	  bin_path(std::move(bin_path)),
 	  random_reply_handle(0, std::numeric_limits<int32_t>::max()),
+	  random_request_id(0, std::numeric_limits<uint32_t>::max()),
 	  message_handler(nullptr), error_handler(nullptr) {}
 
-void Poly::PortableLayer::send_message(const NanoPack::Message &message) const {
-	std::vector<uint8_t> msg_bytes = message.data_with_length_prefix();
-	write(stdin_handle, msg_bytes.data(), msg_bytes.size());
+void Poly::PortableLayer::send_message(const NanoPack::Message &message) {
+	RequestId req_id = generate_request_id();
+
+	std::vector<uint8_t> buf(8);
+	NanoPack::write_uint32(req_id, 0, buf);
+
+	const size_t bytes_written = message.write_to(buf, 8);
+	NanoPack::write_uint32(bytes_written, 4, buf);
+
+	write(stdin_handle, buf.data(), buf.size());
+}
+
+void Poly::PortableLayer::send_request_ack(RequestId request_id) const {
+	std::vector<uint8_t> buf(8);
+	NanoPack::write_uint32(request_id, 0, buf);
+	NanoPack::write_uint32(0, 4, buf);
+	write(stdin_handle, buf.data(), buf.size());
 }
 
 void Poly::PortableLayer::invoke_callback(const int32_t callback_handle,
-										  NanoPack::Any args) const {
+										  NanoPack::Any args) {
 	const Message::InvokeCallback invoke_callback(
 		callback_handle, std::move(args), std::nullopt);
 	send_message(invoke_callback);
@@ -49,6 +65,14 @@ Poly::PortableLayer::invoke_callback_with_result(const int32_t callback_handle,
 	send_message(invoke_callback);
 
 	return future;
+}
+
+Poly::RequestId Poly::PortableLayer::generate_request_id() {
+	RequestId id;
+	do {
+		id = random_request_id.generate();
+	} while (pending_request_ids.contains(id));
+	return id;
 }
 
 void Poly::PortableLayer::on_message(const MessageHandler &handler) {
@@ -129,19 +153,32 @@ void Poly::PortableLayer::terminate() {
 }
 
 void Poly::PortableLayer::read_portable_layer_stdout() {
-	uint8_t msg_size_buf[sizeof(uint32_t)];
-	while (read(stdout_handle, msg_size_buf, sizeof(uint32_t))) {
-		uint32_t msg_size = 0;
-		msg_size |= msg_size_buf[0];
-		msg_size |= msg_size_buf[1] << 8;
-		msg_size |= msg_size_buf[2] << 16;
-		msg_size |= msg_size_buf[3] << 24;
-		std::vector<uint8_t> msg_bytes(msg_size);
-		if (const long status = read(stdout_handle, msg_bytes.data(), msg_size);
+	uint8_t msg_size_buf[8];
+	while (read(stdout_handle, msg_size_buf, 8)) {
+		RequestId request_id = 0;
+		request_id |= msg_size_buf[0];
+		request_id |= msg_size_buf[1] << 8;
+		request_id |= msg_size_buf[2] << 16;
+		request_id |= msg_size_buf[3] << 24;
+
+		uint32_t body_size = 0;
+		body_size |= msg_size_buf[4];
+		body_size |= msg_size_buf[5] << 8;
+		body_size |= msg_size_buf[6] << 16;
+		body_size |= msg_size_buf[7] << 24;
+
+		if (body_size == 0) {
+			handle_request_ack(request_id);
+			continue;
+		}
+
+		std::vector<uint8_t> msg_bytes(body_size);
+		if (const long status =
+				read(stdout_handle, msg_bytes.data(), body_size);
 			status > 0) {
-			// for each message received from the portable layer
+			// for each packet received from the portable layer
 			// spawn a new thread to handle the message.
-			std::thread t(&PortableLayer::handle_message, this,
+			std::thread t(&PortableLayer::handle_message, this, request_id,
 						  std::move(msg_bytes));
 			t.detach();
 		} else if (status == 0) {
@@ -165,7 +202,8 @@ void Poly::PortableLayer::reply_to_callback(
 	pending_callback.erase(msg->to);
 }
 
-void Poly::PortableLayer::handle_message(std::vector<uint8_t> msg_bytes) {
+void Poly::PortableLayer::handle_message(RequestId request_id,
+										std::vector<uint8_t> msg_bytes) {
 	int bytes_read;
 	std::unique_ptr<NanoPack::Message> message =
 		Message::make_nanopack_message(msg_bytes.begin(), bytes_read);
@@ -175,30 +213,15 @@ void Poly::PortableLayer::handle_message(std::vector<uint8_t> msg_bytes) {
 		return;
 	}
 
-	switch (message->type_id()) {
-	case Message::Request::TYPE_ID:
-		handle_request(std::move(message));
-		break;
-
-	default:
-		break;
+	if (message->type_id() == Message::ReplyFromCallback::TYPE_ID) {
+		reply_to_callback(
+			static_cast<Message::ReplyFromCallback *>(message.get()));
+	} else if (message_handler != nullptr) {
+		message_handler(std::move(message));
+		send_request_ack(request_id);
 	}
 }
 
-void Poly::PortableLayer::handle_request(
-	std::unique_ptr<NanoPack::Message> message) {
-	const auto request = static_cast<Message::Request *>(message.get());
-
-	std::vector<uint8_t> body_data = std::move(request->body.data());
-	int bytes_read;
-	std::unique_ptr<NanoPack::Message> message_body = Message::make_nanopack_message(body_data.begin(), bytes_read);
-
-	if (message_body->type_id() == Message::ReplyFromCallback::TYPE_ID) {
-		reply_to_callback(
-			static_cast<Message::ReplyFromCallback *>(message_body.get()));
-	} else if (message_handler != nullptr) {
-		message_handler(std::move(message_body));
-		const Message::OkResponse ok_response(request->id, std::nullopt);
-		send_message(ok_response);
-	}
+void Poly::PortableLayer::handle_request_ack(const RequestId request_id) {
+	pending_request_ids.erase(request_id);
 }

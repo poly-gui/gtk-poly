@@ -23,15 +23,15 @@ Glib::RefPtr<Gtk::Widget> Poly::make_widget(Message::Widget &widget,
 
 	switch (widget.type_id()) {
 	case Message::Text::TYPE_ID:
-		w = Poly::Text::create(static_cast<Message::Text &>(widget));
+		w = Text::create(static_cast<Message::Text &>(widget));
 		break;
 
 	case Message::Row::TYPE_ID:
-		w = Poly::Row::create(static_cast<Message::Row &>(widget), app);
+		w = Row::create(static_cast<Message::Row &>(widget), app);
 		break;
 
 	case Message::Column::TYPE_ID:
-		w = Poly::Column::create(static_cast<Message::Column &>(widget), app);
+		w = Column::create(static_cast<Message::Column &>(widget), app);
 		break;
 
 	case Message::Center::TYPE_ID:
@@ -39,16 +39,16 @@ Glib::RefPtr<Gtk::Widget> Poly::make_widget(Message::Widget &widget,
 		break;
 
 	case Message::Button::TYPE_ID:
-		w = Poly::Button::create(static_cast<Message::Button &>(widget), app);
+		w = Button::create(static_cast<Message::Button &>(widget), app);
 		break;
 
 	case Message::TextField::TYPE_ID:
-		w = Poly::TextField::create(static_cast<Message::TextField &>(widget),
+		w = TextField::create(static_cast<Message::TextField &>(widget),
 									app);
 		break;
 
 	case Message::ListView::TYPE_ID:
-		w = Poly::ListView::create(static_cast<Message::ListView &>(widget),
+		w = ListView::create(static_cast<Message::ListView &>(widget),
 								   app);
 		break;
 

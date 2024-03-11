@@ -37,41 +37,28 @@ NanoPack::TypeId Poly::Message::ListViewItem::type_id() const {
   return TYPE_ID;
 }
 
-std::vector<uint8_t> Poly::Message::ListViewItem::data() const {
-  std::vector<uint8_t> buf(12);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::ListViewItem::header_size() const { return 12; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::ListViewItem::write_to(std::vector<uint8_t> &buf,
+                                             int offset) const {
+  size_t bytes_written = 12;
 
-  writer.write_field_size(0, 4);
-  writer.append_uint32(item_tag);
+  buf.resize(offset + 12);
 
-  const std::vector<uint8_t> widget_data = widget->data();
-  writer.append_bytes(widget_data);
-  writer.write_field_size(1, widget_data.size());
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
-  return buf;
+  NanoPack::write_field_size(0, 4, offset, buf);
+  NanoPack::append_uint32(item_tag, buf);
+  bytes_written += 4;
+
+  const size_t widget_byte_size = widget->write_to(buf, buf.size());
+  NanoPack::write_field_size(1, widget_byte_size, offset, buf);
+
+  return bytes_written;
 }
 
-std::vector<uint8_t>
-Poly::Message::ListViewItem::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(12 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  writer.write_field_size(0, 4);
-  writer.append_uint32(item_tag);
-
-  const std::vector<uint8_t> widget_data = widget->data();
-  writer.append_bytes(widget_data);
-  writer.write_field_size(1, widget_data.size());
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::ListViewItem::data() const {
+  std::vector<uint8_t> buf(12);
+  write_to(buf, 0);
   return buf;
 }

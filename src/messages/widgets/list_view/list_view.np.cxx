@@ -66,82 +66,57 @@ Poly::Message::ListView::ListView(std::vector<uint8_t>::const_iterator begin,
 
 NanoPack::TypeId Poly::Message::ListView::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Poly::Message::ListView::data() const {
-  std::vector<uint8_t> buf(32);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::ListView::header_size() const { return 32; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::ListView::write_to(std::vector<uint8_t> &buf,
+                                         int offset) const {
+  size_t bytes_written = 32;
+
+  buf.resize(offset + 32);
+
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
   if (tag.has_value()) {
     const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
+    NanoPack::write_field_size(0, 4, offset, buf);
+    NanoPack::append_int32(tag, buf);
+    bytes_written += 4;
   } else {
-    writer.write_field_size(0, -1);
+    NanoPack::write_field_size(0, -1, offset, buf);
   }
 
-  writer.write_field_size(1, 8);
-  writer.append_double(width);
+  NanoPack::write_field_size(1, 8, offset, buf);
+  NanoPack::append_double(width, buf);
+  bytes_written += 8;
 
-  writer.write_field_size(2, 8);
-  writer.append_double(height);
+  NanoPack::write_field_size(2, 8, offset, buf);
+  NanoPack::append_double(height, buf);
+  bytes_written += 8;
 
-  writer.write_field_size(3, sections.size() * 4);
+  const int32_t sections_byte_size = sections.size() * 4;
+  NanoPack::write_field_size(3, sections_byte_size, offset, buf);
   for (const auto &i : sections) {
-    writer.append_uint32(i);
+    NanoPack::append_uint32(i, buf);
   }
+  bytes_written += sections_byte_size;
 
-  writer.write_field_size(4, 8);
-  writer.append_double(item_height);
+  NanoPack::write_field_size(4, 8, offset, buf);
+  NanoPack::append_double(item_height, buf);
+  bytes_written += 8;
 
-  writer.write_field_size(5, 4);
-  writer.append_int32(on_create);
+  NanoPack::write_field_size(5, 4, offset, buf);
+  NanoPack::append_int32(on_create, buf);
+  bytes_written += 4;
 
-  writer.write_field_size(6, 4);
-  writer.append_int32(on_bind);
+  NanoPack::write_field_size(6, 4, offset, buf);
+  NanoPack::append_int32(on_bind, buf);
+  bytes_written += 4;
 
-  return buf;
+  return bytes_written;
 }
 
-std::vector<uint8_t> Poly::Message::ListView::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(32 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  if (tag.has_value()) {
-    const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
-  } else {
-    writer.write_field_size(0, -1);
-  }
-
-  writer.write_field_size(1, 8);
-  writer.append_double(width);
-
-  writer.write_field_size(2, 8);
-  writer.append_double(height);
-
-  writer.write_field_size(3, sections.size() * 4);
-  for (const auto &i : sections) {
-    writer.append_uint32(i);
-  }
-
-  writer.write_field_size(4, 8);
-  writer.append_double(item_height);
-
-  writer.write_field_size(5, 4);
-  writer.append_int32(on_create);
-
-  writer.write_field_size(6, 4);
-  writer.append_int32(on_bind);
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::ListView::data() const {
+  std::vector<uint8_t> buf(32);
+  write_to(buf, 0);
   return buf;
 }

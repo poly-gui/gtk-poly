@@ -13,12 +13,12 @@
 namespace Poly {
 
 class WidgetRegistry final {
-	std::unordered_map<int32_t, std::weak_ptr<Gtk::Widget>> widgets;
+	std::unordered_map<int32_t, Glib::RefPtr<Gtk::Widget>> widgets;
 
   public:
-	void register_widget(int32_t tag, std::shared_ptr<Gtk::Widget> widget);
+	void register_widget(int32_t tag, const Glib::RefPtr<Gtk::Widget> &widget);
 
-	std::shared_ptr<Gtk::Widget> find_widget(int32_t tag);
+	Glib::RefPtr<Gtk::Widget> find_widget(int32_t tag);
 };
 
 } // namespace Poly

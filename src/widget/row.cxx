@@ -91,8 +91,8 @@ Poly::Row::Row(const Message::Row &row, std::shared_ptr<Application> app)
 	}
 
 	for (const std::unique_ptr<Message::Widget> &child : row.children) {
-		Glib::RefPtr<Gtk::Widget> widget = make_widget(*child, app);
-		append(std::move(widget));
+		Glib::RefPtr<Widget> widget = make_widget(*child, app);
+		append(widget);
 	}
 }
 
@@ -101,7 +101,7 @@ Glib::RefPtr<Poly::Row> Poly::Row::create(const Message::Row &msg,
 	return Glib::make_refptr_for_instance<Row>(new Row(msg, std::move(app)));
 }
 
-void Poly::Row::append(std::shared_ptr<Widget> widget) {
+void Poly::Row::append(const Glib::RefPtr<Widget> &widget) {
 	if (widget->get_halign() != Gtk::Align::FILL) {
 		widget->set_halign(horizontal_alignment);
 	}
@@ -109,7 +109,7 @@ void Poly::Row::append(std::shared_ptr<Widget> widget) {
 		widget->set_valign(vertical_alignment);
 	}
 	if (has_spacer) {
-		if (children.empty()) {
+		if (children_count == 0) {
 			Widget *start_spacer;
 			switch (horizontal_alignment) {
 			case Gtk::Align::END:
@@ -125,10 +125,10 @@ void Poly::Row::append(std::shared_ptr<Widget> widget) {
 				break;
 			}
 		} else {
-			insert_child_after(*widget, *children.back());
+			insert_child_after(*widget, *get_last_child());
 		}
 	} else {
 		append(*widget);
 	}
-	children.emplace_back(std::move(widget));
+	++children_count;
 }

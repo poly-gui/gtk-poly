@@ -11,8 +11,7 @@ namespace Poly {
 class Row final : public Gtk::Box {
 	Gtk::Align horizontal_alignment;
 	Gtk::Align vertical_alignment;
-	std::vector<std::shared_ptr<Widget>> children;
-
+	int children_count;
 	bool has_spacer;
 
   protected:
@@ -25,7 +24,7 @@ class Row final : public Gtk::Box {
 									std::shared_ptr<Application> app);
 
 	using Box::append;
-	void append(std::shared_ptr<Widget> widget);
+	void append(const Glib::RefPtr<Widget>& widget);
 };
 
 } // namespace Poly

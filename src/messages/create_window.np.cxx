@@ -48,57 +48,41 @@ NanoPack::TypeId Poly::Message::CreateWindow::type_id() const {
   return TYPE_ID;
 }
 
-std::vector<uint8_t> Poly::Message::CreateWindow::data() const {
-  std::vector<uint8_t> buf(24);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::CreateWindow::header_size() const { return 24; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::CreateWindow::write_to(std::vector<uint8_t> &buf,
+                                             int offset) const {
+  size_t bytes_written = 24;
 
-  writer.write_field_size(0, title.size());
-  writer.append_string(title);
+  buf.resize(offset + 24);
 
-  writer.write_field_size(1, description.size());
-  writer.append_string(description);
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
-  writer.write_field_size(2, 4);
-  writer.append_int32(width);
+  NanoPack::write_field_size(0, title.size(), offset, buf);
+  NanoPack::append_string(title, buf);
+  bytes_written += title.size();
 
-  writer.write_field_size(3, 4);
-  writer.append_int32(height);
+  NanoPack::write_field_size(1, description.size(), offset, buf);
+  NanoPack::append_string(description, buf);
+  bytes_written += description.size();
 
-  writer.write_field_size(4, tag.size());
-  writer.append_string(tag);
+  NanoPack::write_field_size(2, 4, offset, buf);
+  NanoPack::append_int32(width, buf);
+  bytes_written += 4;
 
-  return buf;
+  NanoPack::write_field_size(3, 4, offset, buf);
+  NanoPack::append_int32(height, buf);
+  bytes_written += 4;
+
+  NanoPack::write_field_size(4, tag.size(), offset, buf);
+  NanoPack::append_string(tag, buf);
+  bytes_written += tag.size();
+
+  return bytes_written;
 }
 
-std::vector<uint8_t>
-Poly::Message::CreateWindow::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(24 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  writer.write_field_size(0, title.size());
-  writer.append_string(title);
-
-  writer.write_field_size(1, description.size());
-  writer.append_string(description);
-
-  writer.write_field_size(2, 4);
-  writer.append_int32(width);
-
-  writer.write_field_size(3, 4);
-  writer.append_int32(height);
-
-  writer.write_field_size(4, tag.size());
-  writer.append_string(tag);
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::CreateWindow::data() const {
+  std::vector<uint8_t> buf(24);
+  write_to(buf, 0);
   return buf;
 }

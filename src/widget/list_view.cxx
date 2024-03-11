@@ -89,7 +89,7 @@ void Poly::ListView::create_list_item(
 
 	item_tags.insert({list_item, item.item_tag});
 
-	Glib::RefPtr<Widget> item_widget = make_widget(item.get_widget(), app);
+	const Glib::RefPtr<Widget> item_widget = make_widget(item.get_widget(), app);
 	item_widget->set_size_request(-1, item_height);
 
 	list_item->set_child(*item_widget);
@@ -111,7 +111,7 @@ void Poly::ListView::bind_list_item(
 			.invoke_callback_with_result(on_bind, config)
 			.get();
 
-	auto child = list_item->get_child();
+	const auto child = list_item->get_child();
 
 	int bytes_read;
 	const Message::UpdateWidgets updates(result.as_reader(), bytes_read);

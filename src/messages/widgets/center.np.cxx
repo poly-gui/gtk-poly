@@ -39,50 +39,33 @@ Poly::Message::Widget &Poly::Message::Center::get_child() const {
 
 NanoPack::TypeId Poly::Message::Center::type_id() const { return TYPE_ID; }
 
-std::vector<uint8_t> Poly::Message::Center::data() const {
-  std::vector<uint8_t> buf(12);
-  NanoPack::Writer writer(&buf);
+int Poly::Message::Center::header_size() const { return 12; }
 
-  writer.write_type_id(TYPE_ID);
+size_t Poly::Message::Center::write_to(std::vector<uint8_t> &buf,
+                                       int offset) const {
+  size_t bytes_written = 12;
+
+  buf.resize(offset + 12);
+
+  NanoPack::write_type_id(TYPE_ID, offset, buf);
 
   if (tag.has_value()) {
     const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
+    NanoPack::write_field_size(0, 4, offset, buf);
+    NanoPack::append_int32(tag, buf);
+    bytes_written += 4;
   } else {
-    writer.write_field_size(0, -1);
+    NanoPack::write_field_size(0, -1, offset, buf);
   }
 
-  const std::vector<uint8_t> child_data = child->data();
-  writer.append_bytes(child_data);
-  writer.write_field_size(1, child_data.size());
+  const size_t child_byte_size = child->write_to(buf, buf.size());
+  NanoPack::write_field_size(1, child_byte_size, offset, buf);
 
-  return buf;
+  return bytes_written;
 }
 
-std::vector<uint8_t> Poly::Message::Center::data_with_length_prefix() const {
-  std::vector<uint8_t> buf(12 + 4);
-  NanoPack::Writer writer(&buf, 4);
-
-  writer.write_type_id(TYPE_ID);
-
-  if (tag.has_value()) {
-    const auto tag = this->tag.value();
-    writer.write_field_size(0, 4);
-    writer.append_int32(tag);
-  } else {
-    writer.write_field_size(0, -1);
-  }
-
-  const std::vector<uint8_t> child_data = child->data();
-  writer.append_bytes(child_data);
-  writer.write_field_size(1, child_data.size());
-
-  const size_t byte_size = buf.size() - 4;
-  buf[0] = byte_size & 0xFF;
-  buf[1] = byte_size & 0xFF00;
-  buf[2] = byte_size & 0xFF0000;
-  buf[3] = byte_size & 0xFF000000;
-
+std::vector<uint8_t> Poly::Message::Center::data() const {
+  std::vector<uint8_t> buf(12);
+  write_to(buf, 0);
   return buf;
 }

@@ -120,7 +120,7 @@ void Poly::Application::update_widget(std::unique_ptr<NanoPack::Message> msg) {
 	const auto update_widget_msg =
 		static_cast<Message::UpdateWidget *>(msg.release());
 
-	std::shared_ptr<Gtk::Widget> widget =
+	Glib::RefPtr<Gtk::Widget> widget =
 		_widget_registry.find_widget(update_widget_msg->tag);
 	if (widget == nullptr) {
 #ifdef DEBUG
