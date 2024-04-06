@@ -12,6 +12,7 @@
 #include "widgets/center.np.hxx"
 #include "widgets/column.np.hxx"
 #include "widgets/create_widget.np.hxx"
+#include "widgets/font_style.np.hxx"
 #include "widgets/list_view/list_view.np.hxx"
 #include "widgets/list_view/list_view_batch_operations.np.hxx"
 #include "widgets/list_view/list_view_delete_operation.np.hxx"
@@ -76,6 +77,8 @@ std::unique_ptr<NanoPack::Message> Poly::Message::make_nanopack_message(
     return std::make_unique<CreateWindow>(reader, bytes_read);
   case 3604546751:
     return std::make_unique<ListViewBatchOperations>(reader, bytes_read);
+  case 3635009167:
+    return std::make_unique<FontStyle>(reader, bytes_read);
   case 4128951807:
     return std::make_unique<ListViewItemConfig>(reader, bytes_read);
   default:

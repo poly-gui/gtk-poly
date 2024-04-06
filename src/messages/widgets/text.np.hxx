@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 
+#include "font_style.np.hxx"
 #include "make_widget.np.hxx"
 #include "widget.np.hxx"
 
@@ -17,10 +18,11 @@ struct Text : Widget {
   static constexpr NanoPack::TypeId TYPE_ID = 3495336243;
 
   std::string content;
+  FontStyle style;
 
   Text() = default;
 
-  Text(std::optional<int32_t> tag, std::string content);
+  Text(std::optional<int32_t> tag, std::string content, FontStyle style);
 
   Text(std::vector<uint8_t>::const_iterator begin, int &bytes_read);
 

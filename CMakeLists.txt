@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.27)
 project(gtkpoly LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 # setup gtkmm
 find_package(PkgConfig)
@@ -27,6 +28,7 @@ add_library(gtkpoly STATIC
         src/messages/widgets/text.np.cxx
         src/messages/widgets/row.np.cxx
         src/messages/widgets/column.np.cxx
+        src/messages/widgets/font_style.np.cxx
         src/messages/widgets/button/button.np.cxx
         src/messages/widgets/button/click_event.np.cxx
         src/messages/widgets/text_field/text_field.np.cxx

@@ -5,13 +5,14 @@
 
 #include "text.np.hxx"
 
-Poly::Message::Text::Text(std::optional<int32_t> tag, std::string content)
-    : Widget(tag), content(std::move(content)) {}
+Poly::Message::Text::Text(std::optional<int32_t> tag, std::string content,
+                          FontStyle style)
+    : Widget(tag), content(std::move(content)), style(style) {}
 
 Poly::Message::Text::Text(const NanoPack::Reader &reader, int &bytes_read)
     : Widget() {
   const auto begin = reader.begin();
-  int ptr = 12;
+  int ptr = 16;
 
   if (reader.read_field_size(0) < 0) {
     this->tag = std::nullopt;
@@ -25,6 +26,10 @@ Poly::Message::Text::Text(const NanoPack::Reader &reader, int &bytes_read)
   content = reader.read_string(ptr, content_size);
   ptr += content_size;
 
+  int style_bytes_read = 0;
+  style = FontStyle(begin + ptr, style_bytes_read);
+  ptr += style_bytes_read;
+
   bytes_read = ptr;
 }
 
@@ -34,13 +39,13 @@ Poly::Message::Text::Text(std::vector<uint8_t>::const_iterator begin,
 
 NanoPack::TypeId Poly::Message::Text::type_id() const { return TYPE_ID; }
 
-int Poly::Message::Text::header_size() const { return 12; }
+int Poly::Message::Text::header_size() const { return 16; }
 
 size_t Poly::Message::Text::write_to(std::vector<uint8_t> &buf,
                                      int offset) const {
-  size_t bytes_written = 12;
+  size_t bytes_written = 16;
 
-  buf.resize(offset + 12);
+  buf.resize(offset + 16);
 
   NanoPack::write_type_id(TYPE_ID, offset, buf);
 
@@ -57,11 +62,14 @@ size_t Poly::Message::Text::write_to(std::vector<uint8_t> &buf,
   NanoPack::append_string(content, buf);
   bytes_written += content.size();
 
+  const size_t style_byte_size = style.write_to(buf, buf.size());
+  NanoPack::write_field_size(2, style_byte_size, offset, buf);
+
   return bytes_written;
 }
 
 std::vector<uint8_t> Poly::Message::Text::data() const {
-  std::vector<uint8_t> buf(12);
+  std::vector<uint8_t> buf(16);
   write_to(buf, 0);
   return buf;
 }
