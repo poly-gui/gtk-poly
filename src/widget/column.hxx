@@ -1,7 +1,3 @@
-//
-// Created by kenym on 10/02/24.
-//
-
 #ifndef GTKPOLY_COLUMN_HXX
 #define GTKPOLY_COLUMN_HXX
 
@@ -17,8 +13,6 @@ namespace Poly {
 class Column final : public Gtk::Box {
 	Gtk::Align horizontal_alignment;
 	Gtk::Align vertical_alignment;
-	int children_count = 0;
-	bool has_spacer;
 
   protected:
 	Column(const Message::Column &msg, std::shared_ptr<Application> app);
@@ -30,7 +24,7 @@ class Column final : public Gtk::Box {
 									   std::shared_ptr<Application> app);
 
 	using Box::append;
-	void append(const std::shared_ptr<Widget>& widget);
+	void append(const Glib::RefPtr<Widget>& widget);
 };
 
 } // namespace Poly

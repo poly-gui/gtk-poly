@@ -12,36 +12,6 @@ Poly::Row::Row(const Message::Row &row, std::shared_ptr<Application> app)
 	const int desired_width = static_cast<int>(round(row.width));
 	const int desired_height = static_cast<int>(round(row.height));
 
-	Widget *start_spacer = nullptr;
-	Widget *end_spacer = nullptr;
-	switch (row.horizontal_alignment) {
-	case Message::Alignment::CENTER:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			start_spacer = Gtk::make_managed<HorizontalSpacer>();
-			end_spacer = Gtk::make_managed<HorizontalSpacer>();
-			append(*start_spacer);
-			append(*end_spacer);
-		}
-		horizontal_alignment = Gtk::Align::CENTER;
-		break;
-
-	case Message::Alignment::END:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			start_spacer = Gtk::make_managed<HorizontalSpacer>();
-			append(*start_spacer);
-		}
-		horizontal_alignment = Gtk::Align::END;
-		break;
-
-	default:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			end_spacer = Gtk::make_managed<HorizontalSpacer>();
-			append(*end_spacer);
-		}
-		horizontal_alignment = Gtk::Align::START;
-		break;
-	}
-
 	switch (row.vertical_alignment) {
 	case Message::Alignment::START:
 		vertical_alignment = Gtk::Align::START;
@@ -53,8 +23,6 @@ Poly::Row::Row(const Message::Row &row, std::shared_ptr<Application> app)
 		vertical_alignment = Gtk::Align::CENTER;
 		break;
 	}
-
-	has_spacer = start_spacer != nullptr || end_spacer != nullptr;
 
 	bool is_size_request_required = false;
 
@@ -108,27 +76,5 @@ void Poly::Row::append(const Glib::RefPtr<Widget> &widget) {
 	if (widget->get_valign() != Gtk::Align::FILL) {
 		widget->set_valign(vertical_alignment);
 	}
-	if (has_spacer) {
-		if (children_count == 0) {
-			Widget *start_spacer;
-			switch (horizontal_alignment) {
-			case Gtk::Align::END:
-				append(*widget);
-				break;
-			case Gtk::Align::START:
-				insert_child_at_start(*widget);
-				break;
-			case Gtk::Align::CENTER:
-				start_spacer = get_first_child();
-				insert_child_after(*widget, *start_spacer);
-			default:
-				break;
-			}
-		} else {
-			insert_child_after(*widget, *get_last_child());
-		}
-	} else {
-		append(*widget);
-	}
-	++children_count;
+	append(*widget);
 }

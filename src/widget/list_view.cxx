@@ -65,6 +65,7 @@ Poly::ListView::ListView(const Message::ListView &list_view,
 	}
 	if (desired_height == Dimension::FILL_PARENT) {
 		set_valign(Gtk::Align::FILL);
+		set_vexpand(true);
 	}
 }
 

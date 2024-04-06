@@ -1,5 +1,5 @@
-#ifndef ROW_HXX
-#define ROW_HXX
+#ifndef GTKPOLY_ROW_HXX
+#define GTKPOLY_ROW_HXX
 
 #include <gtkmm/box.h>
 #include <gtkpoly/application.hxx>
@@ -11,8 +11,6 @@ namespace Poly {
 class Row final : public Gtk::Box {
 	Gtk::Align horizontal_alignment;
 	Gtk::Align vertical_alignment;
-	int children_count;
-	bool has_spacer;
 
   protected:
 	Row(const Message::Row &row, std::shared_ptr<Application> app);
@@ -29,4 +27,4 @@ class Row final : public Gtk::Box {
 
 } // namespace Poly
 
-#endif // ROW_HXX
+#endif // GTKPOLY_ROW_HXX

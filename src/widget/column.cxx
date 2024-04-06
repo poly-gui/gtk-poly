@@ -3,12 +3,9 @@
 //
 
 #include "column.hxx"
-#include "spacer.hxx"
 
 #include "../dimens.hxx"
 #include "widget_factory.hxx"
-
-#include <iostream>
 
 Poly::Column::Column(const Message::Column &column,
 					 std::shared_ptr<Application> app)
@@ -28,36 +25,6 @@ Poly::Column::Column(const Message::Column &column,
 		horizontal_alignment = Gtk::Align::CENTER;
 		break;
 	}
-
-	Widget *start_spacer = nullptr;
-	Widget *end_spacer = nullptr;
-	switch (column.vertical_alignment) {
-	case Message::Alignment::START:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			end_spacer = Gtk::make_managed<VerticalSpacer>();
-			append(*end_spacer);
-		}
-		vertical_alignment = Gtk::Align::START;
-		break;
-	case Message::Alignment::END:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			start_spacer = Gtk::make_managed<VerticalSpacer>();
-			append(*start_spacer);
-		}
-		vertical_alignment = Gtk::Align::END;
-		break;
-	default:
-		if (desired_width != Dimension::MIN_CONTENT) {
-			start_spacer = Gtk::make_managed<VerticalSpacer>();
-			end_spacer = Gtk::make_managed<VerticalSpacer>();
-			append(*start_spacer);
-			append(*end_spacer);
-		}
-		vertical_alignment = Gtk::Align::CENTER;
-		break;
-	}
-
-	has_spacer = start_spacer != nullptr || end_spacer != nullptr;
 
 	bool is_size_request_required = false;
 
@@ -113,27 +80,5 @@ void Poly::Column::append(const Glib::RefPtr<Widget> &widget) {
 	if (widget->get_valign() != Gtk::Align::FILL) {
 		widget->set_valign(vertical_alignment);
 	}
-	if (has_spacer) {
-		if (children_count == 0) {
-			Widget *start_spacer;
-			switch (horizontal_alignment) {
-			case Gtk::Align::END:
-				append(*widget);
-				break;
-			case Gtk::Align::START:
-				insert_child_at_start(*widget);
-				break;
-			case Gtk::Align::CENTER:
-				start_spacer = get_first_child();
-				insert_child_after(*widget, *start_spacer);
-			default:
-				break;
-			}
-		} else {
-			insert_child_after(*widget, *get_last_child());
-		}
-	} else {
-		append(*widget);
-	}
-	++children_count;
+	append(*widget);
 }
