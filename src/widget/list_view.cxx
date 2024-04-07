@@ -1,17 +1,16 @@
-#include <chrono>
 #include <giomm/liststore.h>
 #include <glibmm.h>
 #include <gtkmm/label.h>
 #include <gtkmm/noselection.h>
 #include <gtkmm/signallistitemfactory.h>
-#include <iostream>
 
 #include "../dimens.hxx"
+#include "../messages/widgets/list_view/list_view_delete_operation.np.hxx"
+#include "../messages/widgets/list_view/list_view_insert_operation.np.hxx"
 #include "../messages/widgets/list_view/list_view_item.np.hxx"
 #include "../messages/widgets/list_view/list_view_item_config.np.hxx"
 #include "../messages/widgets/update_widgets.np.hxx"
 #include "list_view.hxx"
-#include "text.hxx"
 #include "widget_factory.hxx"
 #include "widget_updater.hxx"
 
@@ -47,15 +46,15 @@ Poly::ListView::ListView(const Message::ListView &list_view,
 			bind_list_item(list_item);
 		});
 
-	auto model = Gio::ListStore<
+	store = Gio::ListStore<
 		__ListViewPlaceholderItemObjectDoNotUseOrGetFired__>::create();
 	for (uint32_t i = 0; i < item_count; i++) {
-		model->append(
+		store->append(
 			__ListViewPlaceholderItemObjectDoNotUseOrGetFired__::create());
 	}
 
 	gtk_list_view = std::make_shared<Gtk::ListView>(
-		Gtk::NoSelection::create(model), factory);
+		Gtk::NoSelection::create(store), factory);
 	gtk_list_view->set_size_request(300, 300);
 
 	set_child(*gtk_list_view);
@@ -90,10 +89,43 @@ void Poly::ListView::create_list_item(
 
 	item_tags.insert({list_item, item.item_tag});
 
-	const Glib::RefPtr<Widget> item_widget = make_widget(item.get_widget(), app);
+	const Glib::RefPtr<Widget> item_widget =
+		make_widget(item.get_widget(), app);
 	item_widget->set_size_request(-1, item_height);
 
 	list_item->set_child(*item_widget);
+}
+
+void Poly::ListView::update(
+	const Message::ListView &msg,
+	const Message::ListViewBatchOperations &operations) {
+	for (const std::unique_ptr<Message::ListViewOperation> &operation :
+		 operations.operations) {
+		switch (operation->type_id()) {
+		case Message::ListViewInsertOperation::TYPE_ID: {
+			auto ins_op = static_cast<Message::ListViewInsertOperation *>(
+				operation.get());
+			for (auto i : ins_op->insert_at) {
+				store->insert(
+					i, __ListViewPlaceholderItemObjectDoNotUseOrGetFired__::
+						   create());
+			}
+			break;
+		}
+
+		case Message::ListViewDeleteOperation::TYPE_ID: {
+			auto del_op = static_cast<Message::ListViewDeleteOperation *>(
+				operation.get());
+			for (auto i : del_op->delete_at) {
+				store->remove(i);
+			}
+			break;
+		}
+
+		default:
+			break;
+		}
+	}
 }
 
 void Poly::ListView::bind_list_item(
@@ -117,6 +149,6 @@ void Poly::ListView::bind_list_item(
 	int bytes_read;
 	const Message::UpdateWidgets updates(result.as_reader(), bytes_read);
 	for (const Message::UpdateWidget &update : updates.updates) {
-		update_widget(*child, update.get_widget());
+		update_widget(*child, update.get_widget(), update.args);
 	}
 }

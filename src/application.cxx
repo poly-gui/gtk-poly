@@ -132,7 +132,7 @@ void Poly::Application::update_widget(std::unique_ptr<NanoPack::Message> msg) {
 
 	Glib::signal_idle().connect_once(
 		[widget = std::move(widget), msg = update_widget_msg] {
-			Poly::update_widget(*widget, msg->get_widget());
+			Poly::update_widget(*widget, msg->get_widget(), msg->args);
 			delete msg;
 		});
 }

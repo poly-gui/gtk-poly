@@ -9,6 +9,8 @@
 #include <gtkpoly/application.hxx>
 
 #include "../messages/widgets/list_view/list_view.np.hxx"
+#include "../messages/widgets/list_view/list_view_batch_operations.np.hxx"
+#include "giomm/liststore.h"
 
 namespace Poly {
 
@@ -25,6 +27,9 @@ class __ListViewPlaceholderItemObjectDoNotUseOrGetFired__
 class ListView final : public Gtk::ScrolledWindow {
 	std::shared_ptr<Gtk::ListView> gtk_list_view;
 	std::shared_ptr<Application> app;
+	Glib::RefPtr<
+		Gio::ListStore<__ListViewPlaceholderItemObjectDoNotUseOrGetFired__>>
+		store;
 
 	int32_t on_create;
 	int32_t on_bind;
@@ -46,6 +51,9 @@ class ListView final : public Gtk::ScrolledWindow {
 
 	static Glib::RefPtr<ListView> create(const Message::ListView &list_view,
 										 std::shared_ptr<Application> app);
+
+	void update(const Message::ListView &msg,
+				const Message::ListViewBatchOperations &operations);
 };
 
 } // namespace Poly
