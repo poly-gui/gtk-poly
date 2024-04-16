@@ -10,6 +10,7 @@
 #include "../messages/widgets/list_view/list_view_item.np.hxx"
 #include "../messages/widgets/list_view/list_view_item_config.np.hxx"
 #include "../messages/widgets/update_widgets.np.hxx"
+#include "glibmm/refptr.h"
 #include "list_view.hxx"
 #include "widget_factory.hxx"
 #include "widget_updater.hxx"
@@ -144,11 +145,11 @@ void Poly::ListView::bind_list_item(
 			.invoke_callback_with_result(on_bind, config)
 			.get();
 
-	const auto child = list_item->get_child();
-
 	int bytes_read;
 	const Message::UpdateWidgets updates(result.as_reader(), bytes_read);
 	for (const Message::UpdateWidget &update : updates.updates) {
-		update_widget(*child, update.get_widget(), update.args);
+		Glib::RefPtr<Gtk::Widget> widget =
+			app->widget_registry().find_widget(*update.get_widget().tag);
+		update_widget(*widget, update.get_widget(), update.args);
 	}
 }
