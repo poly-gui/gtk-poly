@@ -1,6 +1,5 @@
 #include "text_field.hxx"
 
-#include "../messages/invoke_callback.np.hxx"
 #include "../messages/widgets/text_field/on_value_changed.np.hxx"
 
 Poly::TextField::TextField(const Message::TextField &text_field,
@@ -10,6 +9,7 @@ Poly::TextField::TextField(const Message::TextField &text_field,
 	if (text_field.placeholder.has_value()) {
 		set_placeholder_text(*text_field.placeholder);
 	}
+	set_vexpand(true);
 	set_text(text_field.value);
 
 	signal_changed().connect([this, app = std::move(app)] {
