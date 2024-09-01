@@ -11,7 +11,7 @@ pkg_check_modules(GTKMM gtkmm-4.0)
 link_directories(${GTKMM_LIBRARY_DIRS})
 include_directories(${GTKMM_INCLUDE_DIRS})
 
-add_subdirectory(lib/nanopack)
+find_package(nanopack CONFIG REQUIRED)
 
 add_library(gtkpoly STATIC
         src/application.cxx
@@ -61,3 +61,6 @@ add_library(gtkpoly STATIC
 target_link_libraries(gtkpoly nanopack)
 target_compile_definitions(gtkpoly PUBLIC "$<$<CONFIG:DEBUG>:DEBUG>")
 target_include_directories(gtkpoly PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}/include)
+
+install(TARGETS gtkpoly
+	DESTINATION ${CMAKE_INSTALL_PREFIX})

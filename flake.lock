@@ -1,0 +1,63 @@
+{
+  "nodes": {
+    "nanopack": {
+      "inputs": {
+        "nixpkgs": "nixpkgs"
+      },
+      "locked": {
+        "lastModified": 1725141633,
+        "narHash": "sha256-bXlOI75dgitKqDXa5Dzbb+bXqAh8K7TpW2qlGetSrKI=",
+        "ref": "main",
+        "rev": "5c69dee1adcf602e9fa338b5d5c3492d052f7654",
+        "revCount": 78,
+        "submodules": true,
+        "type": "git",
+        "url": "file:./lib/nanopack"
+      },
+      "original": {
+        "ref": "main",
+        "submodules": true,
+        "type": "git",
+        "url": "file:./lib/nanopack"
+      }
+    },
+    "nixpkgs": {
+      "locked": {
+        "lastModified": 1725138069,
+        "narHash": "sha256-5msbenvKJqV0H2d8p58o0AMvpk6oyFoPeWU3Zuo+UZg=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "5154507a1b18ae480339201b8f55b145fd52a0f0",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1725191391,
+        "narHash": "sha256-mX5xUFt7fUH3uSWcboiuFrQQipwsIqdtDLCezYZ3Rr0=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "5cbbd23d5de47e31a8db5351c89afb7e5197819c",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "root": {
+      "inputs": {
+        "nanopack": "nanopack",
+        "nixpkgs": "nixpkgs_2"
+      }
+    }
+  },
+  "root": "root",
+  "version": 7
+}
