@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?tag=24.05";
-    nanopack.url = "git+file:./lib/nanopack?ref=main&submodules=1";
+    nanopack.url = "git+file:./lib/nanopack?ref=66b095ebe93c7e88473781a299c99278c1f765c0&submodules=1";
   };
 
   outputs = { self, nixpkgs, nanopack, ... }:

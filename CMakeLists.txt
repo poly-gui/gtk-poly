@@ -11,7 +11,7 @@ pkg_check_modules(GTKMM gtkmm-4.0)
 link_directories(${GTKMM_LIBRARY_DIRS})
 include_directories(${GTKMM_INCLUDE_DIRS})
 
-find_package(nanopack CONFIG REQUIRED)
+find_package(nanopack REQUIRED)
 
 add_library(gtkpoly STATIC
         src/application.cxx
