@@ -6,7 +6,7 @@
 
 #include <glibmm/objectbase.h>
 
-Poly::Text::Text(const Message::Text &msg)
+Poly::Text::Text(const Rpc::Text &msg)
 	: Glib::ObjectBase(typeid(Poly::Text)), Label(),
 	  tag(msg.tag.has_value() ? *msg.tag : -1) {
 	set_halign(Gtk::Align::START);
@@ -14,12 +14,12 @@ Poly::Text::Text(const Message::Text &msg)
 	set_text(msg.content);
 }
 
-Glib::RefPtr<Poly::Text> Poly::Text::create(const Message::Text &msg) {
+Glib::RefPtr<Poly::Text> Poly::Text::create(const Rpc::Text &msg) {
 	return Glib::make_refptr_for_instance<Text>(new Text(msg));
 }
 
-void Poly::Text::update(const Message::Text &msg) { set_text(msg.content); }
+void Poly::Text::update(const Rpc::Text &msg) { set_text(msg.content); }
 
-void Poly::update_text(Text &text, const Message::Text &new_config) {
+void Poly::update_text(Text &text, const Rpc::Text &new_config) {
 	text.set_text(new_config.content);
 }

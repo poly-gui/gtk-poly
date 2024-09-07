@@ -3,10 +3,12 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?tag=24.05";
-    nanopack.url = "git+file:./lib/nanopack?ref=66b095ebe93c7e88473781a299c99278c1f765c0&submodules=1";
+    nanopack.url = "git+file:./lib/nanopack?ref=d83f8cf073ce94fb4904c84c986fe5e800a4936f&submodules=1";
+    nanoc.url = "github:nanopack-buffer/nanoc/main";
+    nanoc-dev.url = "path:/home/kenneth/dev/nanopack/nanoc";
   };
 
-  outputs = { self, nixpkgs, nanopack, ... }:
+  outputs = { self, nixpkgs, nanopack, nanoc, nanoc-dev, ... }:
     let
       supportedSystems = [ "x86_64-linux" "x86_64-darwin" "aarch64-linux" "aarch64-darwin" ];
 
@@ -40,6 +42,7 @@
               pkgs.expat
               pkgs.xorg.libXdmcp
               pkgs.lerc
+              pkgs.fontconfig
               pkgs.gtkmm4
             ];
           };
@@ -55,11 +58,28 @@
         {
           default = pkgs.mkShell {
             packages = [
-              nanopack.packages.${system}.default
+              nanoc-dev.packages.${system}.nanoc
               pkgs.cmake
               pkgs.clang-tools
+              pkgs.pkg-config
+              pkgs.util-linux
+            ];
+            buildInputs = [
+              nanopack.packages.${system}.libnanopack
+              pkgs.pcre2
+              pkgs.libselinux
+              pkgs.libsepol
+              pkgs.fribidi
+              pkgs.libthai
+              pkgs.libdatrie
+              pkgs.expat
+              pkgs.xorg.libXdmcp
+              pkgs.lerc
               pkgs.gtkmm4
             ];
+            shellHook = ''
+              			  export IS_NIX=1
+              			'';
           };
         }
       );

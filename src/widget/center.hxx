@@ -10,11 +10,11 @@
 #include <gtkpoly/application.hxx>
 #include <memory>
 
-#include "../messages/widgets/center.np.hxx"
+#include "../rpc/widget/center.np.hxx"
 
 namespace Poly {
 
-Glib::RefPtr<Gtk::Widget> make_center(const Message::Center &center,
+Glib::RefPtr<Gtk::Widget> make_center(const Rpc::Center &center,
 									  std::shared_ptr<Application> app);
 
 }

@@ -1,9 +1,10 @@
-#include "messages/create_window.np.hxx"
-#include "messages/widgets/create_widget.np.hxx"
-#include "messages/widgets/update_widget.np.hxx"
+#include "glibmm/main.h"
+#include "nanopack/rpc.hxx"
+#include "rpc/native_layer_service.np.hxx"
+#include "rpc/portable_layer_service.np.hxx"
 #include "widget/widget_factory.hxx"
 #include "widget/widget_updater.hxx"
-
+#include <filesystem>
 #include <glibmm.h>
 #include <gtkpoly/application.hxx>
 #include <iostream>
@@ -11,20 +12,15 @@
 #include <nanopack/message.hxx>
 
 Poly::Application::Application(Private, const ApplicationConfig &config)
-	: Gtk::Application(config.application_id, config.flags), config(config),
-	  _portable_layer(config.app_dir_path / "bundle") {
-	_portable_layer.on_message(
-		[this](std::unique_ptr<NanoPack::Message> message) {
-			handle_message(std::move(message));
-		});
-}
+	: Gtk::Application(config.application_id, config.flags),
+	  NativeLayerServiceServer(), config(config), _portable_layer() {}
 
 std::shared_ptr<Poly::Application>
 Poly::Application::create(const ApplicationConfig &config) {
 	return std::make_shared<Application>(Private{}, config);
 }
 
-Poly::PortableLayer &Poly::Application::portable_layer() {
+Rpc::PortableLayerServiceClient &Poly::Application::portable_layer() {
 	return _portable_layer;
 }
 
@@ -33,10 +29,74 @@ Poly::WidgetRegistry &Poly::Application::widget_registry() {
 }
 
 int Poly::Application::start() {
-	_portable_layer.spawn();
+	spawn_portable_layer();
 	const int status = run();
 	cleanup();
 	return status;
+}
+
+void Poly::Application::spawn_portable_layer() {
+	constexpr int READ_FD = 0;
+	constexpr int WRITE_FD = 1;
+
+	std::filesystem::path bin_path = config.app_dir_path / "bundle";
+
+	// receive message from portable layer through this pipe
+	int child_stdout_pipe[2];
+	// send message to portable layer through this pipe
+	int child_stdin_pipe[2];
+
+	pipe(child_stdin_pipe);
+	pipe(child_stdout_pipe);
+
+	const int pid = fork();
+	if (const bool is_child = pid == 0; is_child) {
+		// file descriptor of stdout of native layer
+		// messages from native layer are sent to here which can be read with
+		// the read descriptor (READ_FD)
+		const int parent_stdout = child_stdin_pipe[READ_FD];
+		// file descriptor of stdin of parent process
+		// portable layer will send messages through here by *writing* from here
+		// with the write descriptor (WRITE_FD)
+		const int parent_stdin = child_stdout_pipe[WRITE_FD];
+
+		//                   (1)
+		//          stdout ------> stdin
+		//        /                      \
+		//  native                        portable
+		//        \                      /
+		//          stdin  <------ stdout
+		//                   (2)
+
+		// pipe stdout of native layer to stdin of poratble layer
+		// (1)
+		dup2(parent_stdout, STDIN_FILENO);
+		// pipe stdout of portable layer to stdin of native layer
+		// (2)
+		dup2(parent_stdin, STDOUT_FILENO);
+
+		close(child_stdin_pipe[WRITE_FD]);
+		close(child_stdout_pipe[READ_FD]);
+
+		const char *bin_path_c_str = bin_path.c_str();
+		execl(bin_path_c_str, bin_path_c_str, nullptr);
+
+		std::cout << "should not be here: " << errno << std::endl;
+
+		// TODO: handle when portable layer exits early here.
+	} else {
+		portable_layer_pid = pid;
+		portable_layer_stdin_handle = child_stdin_pipe[WRITE_FD];
+		portable_layer_stdout_handle = child_stdout_pipe[READ_FD];
+
+		close(child_stdin_pipe[READ_FD]);
+		close(child_stdout_pipe[WRITE_FD]);
+
+		NanoPack::StandardIoChannel channel(portable_layer_stdin_handle,
+											portable_layer_stdout_handle);
+		_portable_layer.use_channel(channel);
+		use_channel(channel);
+	}
 }
 
 void Poly::Application::on_activate() {
@@ -60,40 +120,26 @@ void Poly::Application::on_poly_window_destroyed(
 	}
 }
 
-void Poly::Application::cleanup() { _portable_layer.terminate(); }
-
-void Poly::Application::handle_message(std::unique_ptr<NanoPack::Message> msg) {
-	switch (msg->type_id()) {
-	case Message::CreateWindow::TYPE_ID:
-		create_window(std::move(msg));
-		break;
-
-	case Message::CreateWidget::TYPE_ID:
-		create_widget(std::move(msg));
-		break;
-
-	case Message::UpdateWidget::TYPE_ID:
-		update_widget(std::move(msg));
-		break;
-
-	default:
-		break;
+void Poly::Application::cleanup() {
+	if (portable_layer_pid > 0) {
+		kill(portable_layer_pid, SIGKILL);
+		close(portable_layer_stdin_handle);
+		close(portable_layer_stdout_handle);
+		portable_layer_pid = -1;
 	}
 }
 
-void Poly::Application::create_window(std::unique_ptr<NanoPack::Message> msg) {
-	const auto create_window_msg =
-		static_cast<Message::CreateWindow *>(msg.get());
-
+void Poly::Application::create_window(const std::string &title,
+									  const std::string &description,
+									  int32_t width, int32_t height,
+									  const std::string &tag) {
 	const std::shared_ptr<Window> window =
-		window_manager.new_window_with_tag(create_window_msg->tag);
-	window->set_title(create_window_msg->title);
-	window->set_default_size(create_window_msg->width,
-	                         create_window_msg->height);
+		window_manager.new_window_with_tag(tag);
+	window->set_title(title);
+	window->set_default_size(width, height);
 
-	window->signal_destroy().connect([this, tag = create_window_msg->tag] {
-		on_poly_window_destroyed(tag);
-	});
+	window->signal_destroy().connect(
+		[this, tag] { on_poly_window_destroyed(tag); });
 
 	Glib::signal_idle().connect_once([this, window] {
 		add_window(*window);
@@ -101,38 +147,41 @@ void Poly::Application::create_window(std::unique_ptr<NanoPack::Message> msg) {
 	});
 }
 
-void Poly::Application::create_widget(std::unique_ptr<NanoPack::Message> msg) {
-	const auto create_widget_msg =
-		static_cast<Message::CreateWidget *>(msg.get());
+void Poly::Application::clear_window(const std::string &window_tag) {
+	const auto window = window_manager.find_window_with_tag(window_tag);
+	if (window) {
+		Glib::signal_idle().connect_once([window] { window->unset_child(); });
+	}
+}
 
+void Poly::Application::create_widget(std::unique_ptr<Rpc::Widget> widget,
+									  const std::string &window_tag) {
 	const std::shared_ptr<Window> window =
-		window_manager.find_window_with_tag(create_widget_msg->window_tag);
+		window_manager.find_window_with_tag(window_tag);
 	if (window == nullptr)
 		return;
 
-	std::shared_ptr widget =
-		make_widget(create_widget_msg->get_widget(), shared_from_this());
-	widget->show();
-	window->set_child(std::move(widget));
+	auto created_widget = make_widget(*widget, shared_from_this());
+	created_widget->show();
+	window->set_child(std::move(created_widget));
 }
 
-void Poly::Application::update_widget(std::unique_ptr<NanoPack::Message> msg) {
-	const auto update_widget_msg =
-		static_cast<Message::UpdateWidget *>(msg.release());
-
-	Glib::RefPtr<Gtk::Widget> widget =
-		_widget_registry.find_widget(update_widget_msg->tag);
-	if (widget == nullptr) {
+void Poly::Application::update_widget(uint32_t tag,
+									  std::unique_ptr<Rpc::Widget> widget,
+									  std::unique_ptr<NanoPack::Message> args) {
+	Glib::RefPtr<Gtk::Widget> found_widget = _widget_registry.find_widget(tag);
+	if (found_widget == nullptr) {
 #ifdef DEBUG
-		std::cout << "[WARNING] requested to update widget with tag "
-			<< update_widget_msg->tag << " but it doesn't exist." << std::endl;
+		std::cout << "[WARNING] requested to update widget with tag " << tag
+				  << " but it doesn't exist." << std::endl;
 #endif
 		return;
 	}
 
 	Glib::signal_idle().connect_once(
-		[widget = std::move(widget), msg = update_widget_msg] {
-			Poly::update_widget(*widget, msg->get_widget(), msg->args);
-			delete msg;
+		[widget = widget.release(), args = args.release(), &found_widget] {
+			Poly::update_widget(*found_widget, *widget, args);
+			delete args;
+			delete widget;
 		});
 }

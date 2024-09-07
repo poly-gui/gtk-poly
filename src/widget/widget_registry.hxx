@@ -18,7 +18,7 @@ class WidgetRegistry final {
   public:
 	void register_widget(int32_t tag, const Glib::RefPtr<Gtk::Widget> &widget);
 
-	Glib::RefPtr<Gtk::Widget> find_widget(int32_t tag);
+	Glib::RefPtr<Gtk::Widget> find_widget(uint32_t tag);
 };
 
 } // namespace Poly

@@ -3,17 +3,18 @@
 #include <gtkmm/label.h>
 #include <gtkmm/noselection.h>
 #include <gtkmm/signallistitemfactory.h>
+#include <memory>
+#include <optional>
 
 #include "../dimens.hxx"
-#include "../messages/widgets/list_view/list_view_delete_operation.np.hxx"
-#include "../messages/widgets/list_view/list_view_insert_operation.np.hxx"
-#include "../messages/widgets/list_view/list_view_item.np.hxx"
-#include "../messages/widgets/list_view/list_view_item_config.np.hxx"
-#include "../messages/widgets/update_widgets.np.hxx"
+#include "../rpc/widget/list_view_delete_operation.np.hxx"
+#include "../rpc/widget/list_view_insert_operation.np.hxx"
+#include "../rpc/widget/list_view_item.np.hxx"
+#include "../rpc/widget/list_view_item_config.np.hxx"
 #include "glibmm/refptr.h"
 #include "list_view.hxx"
+#include "nanopack/message.hxx"
 #include "widget_factory.hxx"
-#include "widget_updater.hxx"
 
 Poly::__ListViewPlaceholderItemObjectDoNotUseOrGetFired__::
 	__ListViewPlaceholderItemObjectDoNotUseOrGetFired__()
@@ -27,7 +28,7 @@ Poly::__ListViewPlaceholderItemObjectDoNotUseOrGetFired__::create() {
 		new __ListViewPlaceholderItemObjectDoNotUseOrGetFired__());
 }
 
-Poly::ListView::ListView(const Message::ListView &list_view,
+Poly::ListView::ListView(const Rpc::ListView &list_view,
 						 std::shared_ptr<Application> app)
 	: app(std::move(app)), on_create(list_view.on_create),
 	  on_bind(list_view.on_bind),
@@ -70,7 +71,7 @@ Poly::ListView::ListView(const Message::ListView &list_view,
 }
 
 Glib::RefPtr<Poly::ListView>
-Poly::ListView::create(const Message::ListView &list_view,
+Poly::ListView::create(const Rpc::ListView &list_view,
 					   std::shared_ptr<Application> app) {
 	return Glib::make_refptr_for_instance<ListView>(
 		new ListView(list_view, std::move(app)));
@@ -78,34 +79,33 @@ Poly::ListView::create(const Message::ListView &list_view,
 
 void Poly::ListView::create_list_item(
 	const Glib::RefPtr<Gtk::ListItem> &list_item) {
-	const Message::ListViewItemConfig config(std::nullopt, std::nullopt,
-											 std::nullopt);
-	const NanoPack::Any result =
+	const Rpc::ListViewItemConfig config(std::nullopt, std::nullopt,
+										 std::nullopt);
+	std::unique_ptr<NanoPack::Message> result =
 		app->portable_layer()
-			.invoke_callback_with_result(on_create, config)
+			.invoke_callback(on_create,
+							 std::make_unique<Rpc::ListViewItemConfig>(
+								 std::nullopt, std::nullopt, std::nullopt))
 			.get();
 
-	int bytes_read;
-	const Message::ListViewItem item(result.as_reader(), bytes_read);
-
-	item_tags.insert({list_item, item.item_tag});
+	const auto item = static_cast<Rpc::ListViewItem *>(result.get());
+	item_tags.insert({list_item, item->item_tag});
 
 	const Glib::RefPtr<Widget> item_widget =
-		make_widget(item.get_widget(), app);
+		make_widget(item->get_widget(), app);
 	item_widget->set_size_request(-1, item_height);
 
 	list_item->set_child(*item_widget);
 }
 
-void Poly::ListView::update(
-	const Message::ListView &msg,
-	const Message::ListViewBatchOperations &operations) {
-	for (const std::unique_ptr<Message::ListViewOperation> &operation :
+void Poly::ListView::update(const Rpc::ListView &msg,
+							const Rpc::ListViewBatchOperations &operations) {
+	for (const std::unique_ptr<Rpc::ListViewOperation> &operation :
 		 operations.operations) {
 		switch (operation->type_id()) {
-		case Message::ListViewInsertOperation::TYPE_ID: {
-			auto ins_op = static_cast<Message::ListViewInsertOperation *>(
-				operation.get());
+		case Rpc::ListViewInsertOperation::TYPE_ID: {
+			auto ins_op =
+				static_cast<Rpc::ListViewInsertOperation *>(operation.get());
 			for (auto i : ins_op->insert_at) {
 				store->insert(
 					i, __ListViewPlaceholderItemObjectDoNotUseOrGetFired__::
@@ -114,9 +114,9 @@ void Poly::ListView::update(
 			break;
 		}
 
-		case Message::ListViewDeleteOperation::TYPE_ID: {
-			auto del_op = static_cast<Message::ListViewDeleteOperation *>(
-				operation.get());
+		case Rpc::ListViewDeleteOperation::TYPE_ID: {
+			auto del_op =
+				static_cast<Rpc::ListViewDeleteOperation *>(operation.get());
 			for (auto i : del_op->delete_at) {
 				store->remove(i);
 			}
@@ -137,19 +137,8 @@ void Poly::ListView::bind_list_item(
 
 	const uint32_t item_tag = entry->second;
 
-	const Message::ListViewItemConfig config(0, list_item->get_position(),
-											 item_tag);
-
-	const NanoPack::Any result =
-		app->portable_layer()
-			.invoke_callback_with_result(on_bind, config)
-			.get();
-
-	int bytes_read;
-	const Message::UpdateWidgets updates(result.as_reader(), bytes_read);
-	for (const Message::UpdateWidget &update : updates.updates) {
-		Glib::RefPtr<Gtk::Widget> widget =
-			app->widget_registry().find_widget(*update.get_widget().tag);
-		update_widget(*widget, update.get_widget(), update.args);
-	}
+	app->portable_layer()
+		.invoke_callback(on_bind, std::make_unique<Rpc::ListViewItemConfig>(
+									  0, list_item->get_position(), item_tag))
+		.get();
 }

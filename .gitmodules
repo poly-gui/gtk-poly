@@ -1,3 +1,6 @@
 [submodule "lib/nanopack"]
 	path = lib/nanopack
 	url = https://github.com/poly-gui/nanopack
+[submodule "lib/rpc-schemas"]
+	path = lib/rpc-schemas
+	url = https://github.com/poly-gui/rpc-schemas.git

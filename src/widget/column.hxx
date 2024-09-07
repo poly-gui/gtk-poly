@@ -6,7 +6,7 @@
 #include <gtkpoly/application.hxx>
 #include <memory>
 
-#include "../messages/widgets/column.np.hxx"
+#include "../rpc/widget/column.np.hxx"
 
 namespace Poly {
 
@@ -15,16 +15,16 @@ class Column final : public Gtk::Box {
 	Gtk::Align vertical_alignment;
 
   protected:
-	Column(const Message::Column &msg, std::shared_ptr<Application> app);
+	Column(const Rpc::Column &msg, std::shared_ptr<Application> app);
 
   public:
 	int32_t tag;
 
-	static Glib::RefPtr<Column> create(const Message::Column &msg,
+	static Glib::RefPtr<Column> create(const Rpc::Column &msg,
 									   std::shared_ptr<Application> app);
 
 	using Box::append;
-	void append(const Glib::RefPtr<Widget>& widget);
+	void append(const Glib::RefPtr<Widget> &widget);
 };
 
 } // namespace Poly

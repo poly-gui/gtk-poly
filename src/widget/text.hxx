@@ -9,25 +9,25 @@
 #include <gtkpoly/application.hxx>
 #include <memory>
 
-#include "../messages/widgets/text.np.hxx"
+#include "../rpc/widget/text.np.hxx"
 
 namespace Poly {
 class Text final : public Gtk::Label {
   protected:
-	Text(const Message::Text &msg);
+	Text(const Rpc::Text &msg);
 
   public:
 	int32_t tag;
 
-	static Glib::RefPtr<Text> create(const Message::Text &msg);
+	static Glib::RefPtr<Text> create(const Rpc::Text &msg);
 
-	void update(const Message::Text &msg);
+	void update(const Rpc::Text &msg);
 };
 
-std::unique_ptr<Text> make_text(const Message::Text &msg,
+std::unique_ptr<Text> make_text(const Rpc::Text &msg,
 								std::shared_ptr<Application> app);
 
-void update_text(Text &text, const Message::Text &new_config);
+void update_text(Text &text, const Rpc::Text &new_config);
 
 } // namespace Poly
 

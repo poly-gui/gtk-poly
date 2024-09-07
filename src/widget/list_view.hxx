@@ -8,8 +8,8 @@
 #include <gtkmm/signallistitemfactory.h>
 #include <gtkpoly/application.hxx>
 
-#include "../messages/widgets/list_view/list_view.np.hxx"
-#include "../messages/widgets/list_view/list_view_batch_operations.np.hxx"
+#include "../rpc/widget/list_view.np.hxx"
+#include "../rpc/widget/list_view_batch_operations.np.hxx"
 #include "giomm/liststore.h"
 
 namespace Poly {
@@ -41,19 +41,18 @@ class ListView final : public Gtk::ScrolledWindow {
 	void bind_list_item(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
   protected:
-	ListView(const Message::ListView &list_view,
-			 std::shared_ptr<Application> app);
+	ListView(const Rpc::ListView &list_view, std::shared_ptr<Application> app);
 
   public:
 	int32_t tag;
 
 	uint32_t item_height;
 
-	static Glib::RefPtr<ListView> create(const Message::ListView &list_view,
+	static Glib::RefPtr<ListView> create(const Rpc::ListView &list_view,
 										 std::shared_ptr<Application> app);
 
-	void update(const Message::ListView &msg,
-				const Message::ListViewBatchOperations &operations);
+	void update(const Rpc::ListView &msg,
+				const Rpc::ListViewBatchOperations &operations);
 };
 
 } // namespace Poly

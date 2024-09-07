@@ -1,27 +1,91 @@
 {
   "nodes": {
-    "nanopack": {
+    "nanoc": {
       "inputs": {
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1725193491,
-        "narHash": "sha256-U48WxuXeBe0wTOM7vglPA0/zODsj+3we9FMcjSGT174=",
-        "ref": "66b095ebe93c7e88473781a299c99278c1f765c0",
-        "rev": "66b095ebe93c7e88473781a299c99278c1f765c0",
-        "revCount": 83,
+        "lastModified": 1725207459,
+        "narHash": "sha256-5Iez+BdS6El0FkHdC5XTP59QUf26n1kzHf6opH/vmbI=",
+        "owner": "nanopack-buffer",
+        "repo": "nanoc",
+        "rev": "3adc15c0aa900b5a0a0aa69625c7f32e52ccfa8e",
+        "type": "github"
+      },
+      "original": {
+        "owner": "nanopack-buffer",
+        "ref": "main",
+        "repo": "nanoc",
+        "type": "github"
+      }
+    },
+    "nanoc-dev": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1725665788,
+        "narHash": "sha256-VoTWs7gYZUNjTu1wHZ7vjmXYheU59YUkMsn4gkjnce8=",
+        "path": "/home/kenneth/dev/nanopack/nanoc",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/kenneth/dev/nanopack/nanoc",
+        "type": "path"
+      }
+    },
+    "nanopack": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_3"
+      },
+      "locked": {
+        "lastModified": 1725487406,
+        "narHash": "sha256-gr6n9QgHu5OhmixxyTVz/kRVJXUl99Ht81iwKflQjTw=",
+        "ref": "d83f8cf073ce94fb4904c84c986fe5e800a4936f",
+        "rev": "d83f8cf073ce94fb4904c84c986fe5e800a4936f",
+        "revCount": 90,
         "submodules": true,
         "type": "git",
         "url": "file:./lib/nanopack"
       },
       "original": {
-        "ref": "66b095ebe93c7e88473781a299c99278c1f765c0",
+        "ref": "d83f8cf073ce94fb4904c84c986fe5e800a4936f",
         "submodules": true,
         "type": "git",
         "url": "file:./lib/nanopack"
       }
     },
     "nixpkgs": {
+      "locked": {
+        "lastModified": 1725123743,
+        "narHash": "sha256-Arh0JyxbeOD2YJ+25IOpTwPi1Qq6PhKRP9EqXChAoBA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6414ef7ca3bf18ec4f9628d09ccc1eb030276ee2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1725123743,
+        "narHash": "sha256-Arh0JyxbeOD2YJ+25IOpTwPi1Qq6PhKRP9EqXChAoBA=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "6414ef7ca3bf18ec4f9628d09ccc1eb030276ee2",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
+    "nixpkgs_3": {
       "locked": {
         "lastModified": 1725138069,
         "narHash": "sha256-5msbenvKJqV0H2d8p58o0AMvpk6oyFoPeWU3Zuo+UZg=",
@@ -36,7 +100,7 @@
         "type": "github"
       }
     },
-    "nixpkgs_2": {
+    "nixpkgs_4": {
       "locked": {
         "lastModified": 1725193534,
         "narHash": "sha256-CQqo1xqTDG3xrHbxYSPes1E2mAa8HA7we+7xdHkU0oo=",
@@ -53,8 +117,10 @@
     },
     "root": {
       "inputs": {
+        "nanoc": "nanoc",
+        "nanoc-dev": "nanoc-dev",
         "nanopack": "nanopack",
-        "nixpkgs": "nixpkgs_2"
+        "nixpkgs": "nixpkgs_4"
       }
     }
   },

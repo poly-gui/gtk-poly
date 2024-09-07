@@ -1,13 +1,9 @@
-//
-// Created by kenym on 10/02/24.
-//
-
 #include "column.hxx"
 
 #include "../dimens.hxx"
 #include "widget_factory.hxx"
 
-Poly::Column::Column(const Message::Column &column,
+Poly::Column::Column(const Rpc::Column &column,
 					 std::shared_ptr<Application> app)
 	: Box(Gtk::Orientation::VERTICAL, 0),
 	  tag(column.tag.has_value() ? *column.tag : 0) {
@@ -15,10 +11,10 @@ Poly::Column::Column(const Message::Column &column,
 	const int desired_height = static_cast<int>(round(column.height));
 
 	switch (column.horizontal_alignment) {
-	case Message::Alignment::START:
+	case Rpc::Alignment::START:
 		horizontal_alignment = Gtk::Align::START;
 		break;
-	case Message::Alignment::END:
+	case Rpc::Alignment::END:
 		horizontal_alignment = Gtk::Align::END;
 		break;
 	default:
@@ -60,15 +56,14 @@ Poly::Column::Column(const Message::Column &column,
 		set_size_request(desired_width, desired_height);
 	}
 
-	for (const std::unique_ptr<Message::Widget> &child : column.children) {
+	for (const std::unique_ptr<Rpc::Widget> &child : column.children) {
 		Glib::RefPtr<Widget> widget = make_widget(*child, app);
 		append(widget);
 	}
 }
 
 Glib::RefPtr<Poly::Column>
-Poly::Column::create(const Message::Column &msg,
-					 std::shared_ptr<Application> app) {
+Poly::Column::create(const Rpc::Column &msg, std::shared_ptr<Application> app) {
 	return Glib::make_refptr_for_instance<Column>(
 		new Column(msg, std::move(app)));
 }

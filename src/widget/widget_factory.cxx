@@ -2,13 +2,13 @@
 
 #include "widget_factory.hxx"
 
-#include "../messages/widgets/button/button.np.hxx"
-#include "../messages/widgets/center.np.hxx"
-#include "../messages/widgets/column.np.hxx"
-#include "../messages/widgets/list_view/list_view.np.hxx"
-#include "../messages/widgets/row.np.hxx"
-#include "../messages/widgets/text.np.hxx"
-#include "../messages/widgets/text_field/text_field.np.hxx"
+#include "../rpc/widget/button.np.hxx"
+#include "../rpc/widget/center.np.hxx"
+#include "../rpc/widget/column.np.hxx"
+#include "../rpc/widget/list_view.np.hxx"
+#include "../rpc/widget/row.np.hxx"
+#include "../rpc/widget/text.np.hxx"
+#include "../rpc/widget/text_field.np.hxx"
 #include "button.hxx"
 #include "center.hxx"
 #include "column.hxx"
@@ -17,39 +17,37 @@
 #include "text.hxx"
 #include "text_field.hxx"
 
-Glib::RefPtr<Gtk::Widget> Poly::make_widget(Message::Widget &widget,
+Glib::RefPtr<Gtk::Widget> Poly::make_widget(Rpc::Widget &widget,
 											std::shared_ptr<Application> app) {
 	Glib::RefPtr<Gtk::Widget> w;
 
 	switch (widget.type_id()) {
-	case Message::Text::TYPE_ID:
-		w = Text::create(static_cast<Message::Text &>(widget));
+	case Rpc::Text::TYPE_ID:
+		w = Text::create(static_cast<Rpc::Text &>(widget));
 		break;
 
-	case Message::Row::TYPE_ID:
-		w = Row::create(static_cast<Message::Row &>(widget), app);
+	case Rpc::Row::TYPE_ID:
+		w = Row::create(static_cast<Rpc::Row &>(widget), app);
 		break;
 
-	case Message::Column::TYPE_ID:
-		w = Column::create(static_cast<Message::Column &>(widget), app);
+	case Rpc::Column::TYPE_ID:
+		w = Column::create(static_cast<Rpc::Column &>(widget), app);
 		break;
 
-	case Message::Center::TYPE_ID:
-		w = make_center(static_cast<Message::Center &>(widget), app);
+	case Rpc::Center::TYPE_ID:
+		w = make_center(static_cast<Rpc::Center &>(widget), app);
 		break;
 
-	case Message::Button::TYPE_ID:
-		w = Button::create(static_cast<Message::Button &>(widget), app);
+	case Rpc::Button::TYPE_ID:
+		w = Button::create(static_cast<Rpc::Button &>(widget), app);
 		break;
 
-	case Message::TextField::TYPE_ID:
-		w = TextField::create(static_cast<Message::TextField &>(widget),
-									app);
+	case Rpc::TextField::TYPE_ID:
+		w = TextField::create(static_cast<Rpc::TextField &>(widget), app);
 		break;
 
-	case Message::ListView::TYPE_ID:
-		w = ListView::create(static_cast<Message::ListView &>(widget),
-								   app);
+	case Rpc::ListView::TYPE_ID:
+		w = ListView::create(static_cast<Rpc::ListView &>(widget), app);
 		break;
 
 	default:
