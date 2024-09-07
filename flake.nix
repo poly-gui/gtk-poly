@@ -17,39 +17,46 @@
       nixpkgsFor = forAllSystems (system: import nixpkgs { inherit system; });
     in
     {
-      packages = forAllSystems (system:
-        let
-          pkgs = nixpkgsFor.${system};
-        in
-        rec {
-          libgtkpoly = pkgs.stdenv.mkDerivation {
-            pname = "libgtkpoly";
-            version = "0.1.0";
-            src = ./.;
-            nativeBuildInputs = [
-              pkgs.cmake
-              pkgs.pkg-config
-              pkgs.util-linux
+      packages = forAllSystems
+        (system:
+          let
+            pkgs = nixpkgsFor.${system};
+            binPath = pkgs.lib.makeBinBath [
+              pkgs.coreutils
             ];
-            buildInputs = [
-              nanopack.packages.${system}.libnanopack
-              pkgs.pcre2
-              pkgs.libselinux
-              pkgs.libsepol
-              pkgs.fribidi
-              pkgs.libthai
-              pkgs.libdatrie
-              pkgs.expat
-              pkgs.xorg.libXdmcp
-              pkgs.lerc
-              pkgs.fontconfig
-              pkgs.gtkmm4
-            ];
-          };
+          in
+          rec {
+            libgtkpoly = pkgs.stdenv.mkDerivation
+              {
+                pname = "libgtkpoly";
+                version = "0.1.0";
+                src = self;
+                nativeBuildInputs = [
+                  pkgs.coreutils
+                  pkgs.pkg-config
+                  pkgs.util-linux
+                ];
+                buildInputs = [
+                  nanopack.packages.${system}.libnanopack
+                  pkgs.pcre2
+                  pkgs.libselinux
+                  pkgs.libsepol
+                  pkgs.fribidi
+                  pkgs.libthai
+                  pkgs.libdatrie
+                  pkgs.expat
+                  pkgs.xorg.libXdmcp
+                  pkgs.lerc
+                  pkgs.fontconfig
+                  pkgs.gtkmm4
+                ];
+                buildPhase = "IS_NIX='1' bash ./build.sh";
+                installPhase = "mkdir -p $out/lib; install -t $out/lib ./build/libgtkpoly.a";
+              };
 
-          default = libgtkpoly;
-        }
-      );
+            default = libgtkpoly;
+          }
+        );
 
       devShells = forAllSystems (system:
         let

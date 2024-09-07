@@ -10,7 +10,7 @@ for arg in "$@"; do declare $arg='1'; done
 
 if [ ! -v release ]; then debug=1; fi
 
-if [ ! -f ./lib/nanopack/build.sh ] && [ ! -v $IS_NIX ]; then
+if [ ! -f ./lib/nanopack/build.sh ] && [ -z $IS_NIX ]; then
 	echo "getting submodules..."
 	git submodule update --init --recursive
 fi
@@ -92,7 +92,7 @@ for p in "${src_files[@]}"; do
 	$compile -c $src -o $out
 done
 
-$ar -rcs libpoly.a *.o
+$ar -rcs libgtkpoly.a *.o
 rm *.o
 
 popd
