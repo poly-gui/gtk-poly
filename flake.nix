@@ -21,9 +21,6 @@
         (system:
           let
             pkgs = nixpkgsFor.${system};
-            binPath = pkgs.lib.makeBinBath [
-              pkgs.coreutils
-            ];
           in
           rec {
             libgtkpoly = pkgs.stdenv.mkDerivation
@@ -51,7 +48,7 @@
                   pkgs.gtkmm4
                 ];
                 buildPhase = "IS_NIX='1' bash ./build.sh";
-                installPhase = "mkdir -p $out/lib; install -t $out/lib ./build/libgtkpoly.a";
+                installPhase = "bash ./install.sh";
               };
 
             default = libgtkpoly;
@@ -84,9 +81,7 @@
               pkgs.lerc
               pkgs.gtkmm4
             ];
-            shellHook = ''
-              			  export IS_NIX=1
-              			'';
+            shellHook = ''export IS_NIX=1'';
           };
         }
       );
