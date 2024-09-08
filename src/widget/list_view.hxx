@@ -6,8 +6,8 @@
 #include <gtkmm/listview.h>
 #include <gtkmm/scrolledwindow.h>
 #include <gtkmm/signallistitemfactory.h>
-#include <gtkpoly/application.hxx>
 
+#include "../application.hxx"
 #include "../rpc/widget/list_view.np.hxx"
 #include "../rpc/widget/list_view_batch_operations.np.hxx"
 #include "giomm/liststore.h"
@@ -26,7 +26,7 @@ class __ListViewPlaceholderItemObjectDoNotUseOrGetFired__
 
 class ListView final : public Gtk::ScrolledWindow {
 	std::shared_ptr<Gtk::ListView> gtk_list_view;
-	std::shared_ptr<Application> app;
+	std::shared_ptr<_Application> app;
 	Glib::RefPtr<
 		Gio::ListStore<__ListViewPlaceholderItemObjectDoNotUseOrGetFired__>>
 		store;
@@ -41,7 +41,7 @@ class ListView final : public Gtk::ScrolledWindow {
 	void bind_list_item(const Glib::RefPtr<Gtk::ListItem> &list_item);
 
   protected:
-	ListView(const Rpc::ListView &list_view, std::shared_ptr<Application> app);
+	ListView(const Rpc::ListView &list_view, std::shared_ptr<_Application> app);
 
   public:
 	int32_t tag;
@@ -49,7 +49,7 @@ class ListView final : public Gtk::ScrolledWindow {
 	uint32_t item_height;
 
 	static Glib::RefPtr<ListView> create(const Rpc::ListView &list_view,
-										 std::shared_ptr<Application> app);
+										 std::shared_ptr<_Application> app);
 
 	void update(const Rpc::ListView &msg,
 				const Rpc::ListViewBatchOperations &operations);

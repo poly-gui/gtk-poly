@@ -2,11 +2,12 @@
 #include <memory>
 #include <sigc++/connection.h>
 
+#include "../application.hxx"
 #include "../rpc/event/click_event.np.hxx"
 #include "button.hxx"
 
 Poly::Button::Button(const Rpc::Button &button,
-					 std::shared_ptr<Application> app)
+					 std::shared_ptr<_Application> app)
 	: Gtk::Button(button.text), tag(button.tag.has_value() ? *button.tag : -1),
 	  on_click_handle(button.on_click) {
 	set_halign(Gtk::Align::START);
@@ -26,7 +27,7 @@ Poly::Button::Button(const Rpc::Button &button,
 
 Glib::RefPtr<Poly::Button>
 Poly::Button::create(const Rpc::Button &button,
-					 std::shared_ptr<Application> app) {
+					 std::shared_ptr<_Application> app) {
 	return Glib::make_refptr_for_instance<Button>(
 		new Button(button, std::move(app)));
 }

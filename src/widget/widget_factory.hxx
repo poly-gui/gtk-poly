@@ -7,13 +7,13 @@
 
 #include "../rpc/widget/widget.np.hxx"
 
+#include "../application.hxx"
 #include <glibmm/refptr.h>
-#include <gtkpoly/application.hxx>
 
 namespace Poly {
 
 Glib::RefPtr<Gtk::Widget> make_widget(Rpc::Widget &widget,
-									  std::shared_ptr<Application> app);
+									  std::shared_ptr<_Application> app);
 
 }
 

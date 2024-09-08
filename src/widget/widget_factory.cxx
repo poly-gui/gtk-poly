@@ -18,7 +18,7 @@
 #include "text_field.hxx"
 
 Glib::RefPtr<Gtk::Widget> Poly::make_widget(Rpc::Widget &widget,
-											std::shared_ptr<Application> app) {
+											std::shared_ptr<_Application> app) {
 	Glib::RefPtr<Gtk::Widget> w;
 
 	switch (widget.type_id()) {

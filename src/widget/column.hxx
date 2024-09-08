@@ -3,9 +3,9 @@
 
 #include <glibmm/refptr.h>
 #include <gtkmm/box.h>
-#include <gtkpoly/application.hxx>
 #include <memory>
 
+#include "../application.hxx"
 #include "../rpc/widget/column.np.hxx"
 
 namespace Poly {
@@ -15,13 +15,13 @@ class Column final : public Gtk::Box {
 	Gtk::Align vertical_alignment;
 
   protected:
-	Column(const Rpc::Column &msg, std::shared_ptr<Application> app);
+	Column(const Rpc::Column &msg, std::shared_ptr<_Application> app);
 
   public:
 	int32_t tag;
 
 	static Glib::RefPtr<Column> create(const Rpc::Column &msg,
-									   std::shared_ptr<Application> app);
+									   std::shared_ptr<_Application> app);
 
 	using Box::append;
 	void append(const Glib::RefPtr<Widget> &widget);

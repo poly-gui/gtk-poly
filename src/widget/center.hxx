@@ -7,15 +7,15 @@
 
 #include <glibmm/refptr.h>
 #include <gtkmm/widget.h>
-#include <gtkpoly/application.hxx>
 #include <memory>
 
+#include "../application.hxx"
 #include "../rpc/widget/center.np.hxx"
 
 namespace Poly {
 
 Glib::RefPtr<Gtk::Widget> make_center(const Rpc::Center &center,
-									  std::shared_ptr<Application> app);
+									  std::shared_ptr<_Application> app);
 
 }
 

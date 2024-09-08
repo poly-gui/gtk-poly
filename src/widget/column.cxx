@@ -4,7 +4,7 @@
 #include "widget_factory.hxx"
 
 Poly::Column::Column(const Rpc::Column &column,
-					 std::shared_ptr<Application> app)
+					 std::shared_ptr<_Application> app)
 	: Box(Gtk::Orientation::VERTICAL, 0),
 	  tag(column.tag.has_value() ? *column.tag : 0) {
 	const int desired_width = static_cast<int>(round(column.width));
@@ -63,7 +63,8 @@ Poly::Column::Column(const Rpc::Column &column,
 }
 
 Glib::RefPtr<Poly::Column>
-Poly::Column::create(const Rpc::Column &msg, std::shared_ptr<Application> app) {
+Poly::Column::create(const Rpc::Column &msg,
+					 std::shared_ptr<_Application> app) {
 	return Glib::make_refptr_for_instance<Column>(
 		new Column(msg, std::move(app)));
 }

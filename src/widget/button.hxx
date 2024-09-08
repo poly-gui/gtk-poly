@@ -11,13 +11,14 @@
 #include <memory>
 #include <sigc++/connection.h>
 
+#include "../application.hxx"
 #include "../rpc/widget/button.np.hxx"
 
 namespace Poly {
 
 class Button final : public Gtk::Button {
   protected:
-	Button(const Rpc::Button &button, std::shared_ptr<Application> app);
+	Button(const Rpc::Button &button, std::shared_ptr<_Application> app);
 
   public:
 	int32_t tag;
@@ -25,7 +26,7 @@ class Button final : public Gtk::Button {
 	int32_t on_click_handle;
 
 	static Glib::RefPtr<Button> create(const Rpc::Button &button,
-									   std::shared_ptr<Application> app);
+									   std::shared_ptr<_Application> app);
 
 	void update(const Rpc::Button &msg);
 };

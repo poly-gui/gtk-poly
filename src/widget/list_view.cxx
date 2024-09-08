@@ -29,7 +29,7 @@ Poly::__ListViewPlaceholderItemObjectDoNotUseOrGetFired__::create() {
 }
 
 Poly::ListView::ListView(const Rpc::ListView &list_view,
-						 std::shared_ptr<Application> app)
+						 std::shared_ptr<_Application> app)
 	: app(std::move(app)), on_create(list_view.on_create),
 	  on_bind(list_view.on_bind),
 	  tag(list_view.tag.has_value() ? *list_view.tag : -1),
@@ -72,7 +72,7 @@ Poly::ListView::ListView(const Rpc::ListView &list_view,
 
 Glib::RefPtr<Poly::ListView>
 Poly::ListView::create(const Rpc::ListView &list_view,
-					   std::shared_ptr<Application> app) {
+					   std::shared_ptr<_Application> app) {
 	return Glib::make_refptr_for_instance<ListView>(
 		new ListView(list_view, std::move(app)));
 }

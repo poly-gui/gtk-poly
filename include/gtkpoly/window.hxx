@@ -1,7 +1,3 @@
-//
-// Created by kenym on 07/02/24.
-//
-
 #ifndef GTKPOLY_WINDOW_HXX
 #define GTKPOLY_WINDOW_HXX
 

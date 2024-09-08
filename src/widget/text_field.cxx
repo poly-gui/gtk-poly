@@ -4,7 +4,7 @@
 #include <memory>
 
 Poly::TextField::TextField(const Rpc::TextField &text_field,
-						   std::shared_ptr<Application> app)
+						   std::shared_ptr<_Application> app)
 	: tag(text_field.tag.has_value() ? *text_field.tag : -1),
 	  on_value_changed_handle(text_field.on_value_changed) {
 	if (text_field.placeholder.has_value()) {
@@ -22,7 +22,7 @@ Poly::TextField::TextField(const Rpc::TextField &text_field,
 
 Glib::RefPtr<Poly::TextField>
 Poly::TextField::create(const Rpc::TextField &text_field,
-						std::shared_ptr<Application> app) {
+						std::shared_ptr<_Application> app) {
 	return Glib::make_refptr_for_instance(new TextField(text_field, app));
 }
 

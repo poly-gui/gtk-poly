@@ -1,12 +1,9 @@
 #include "row.hxx"
-#include "spacer.hxx"
-
 #include "../dimens.hxx"
 #include "widget_factory.hxx"
-
 #include <gtkmm/label.h>
 
-Poly::Row::Row(const Rpc::Row &row, std::shared_ptr<Application> app)
+Poly::Row::Row(const Rpc::Row &row, std::shared_ptr<_Application> app)
 	: Box(Gtk::Orientation::HORIZONTAL, 0),
 	  tag(row.tag.has_value() ? *row.tag : 0) {
 	const int desired_width = static_cast<int>(round(row.width));
@@ -65,7 +62,7 @@ Poly::Row::Row(const Rpc::Row &row, std::shared_ptr<Application> app)
 }
 
 Glib::RefPtr<Poly::Row> Poly::Row::create(const Rpc::Row &msg,
-										  std::shared_ptr<Application> app) {
+										  std::shared_ptr<_Application> app) {
 	return Glib::make_refptr_for_instance<Row>(new Row(msg, std::move(app)));
 }
 
