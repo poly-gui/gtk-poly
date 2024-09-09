@@ -5,10 +5,11 @@
 
 #include "../application.hxx"
 #include "../rpc/widget/row.np.hxx"
+#include "../widget/widget.hxx"
 
 namespace Poly {
 
-class Row final : public Gtk::Box {
+class Row final : public Gtk::Box, public MultiChildrenWidget {
 	Gtk::Align horizontal_alignment;
 	Gtk::Align vertical_alignment;
 
@@ -23,6 +24,12 @@ class Row final : public Gtk::Box {
 
 	using Box::append;
 	void append(const Glib::RefPtr<Widget> &widget);
+
+	void append_widget(const Glib::RefPtr<Gtk::Widget> &widget) override;
+
+	void insert_widget_before(
+		const Glib::RefPtr<Gtk::Widget> &widget,
+		const Glib::RefPtr<Gtk::Widget> &before_widget) override;
 };
 
 } // namespace Poly

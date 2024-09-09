@@ -27,6 +27,7 @@ src_files=(
     src/rpc/widget/column.np.cxx
     src/rpc/widget/font_style.np.cxx
     src/rpc/widget/list_view.np.cxx
+	src/rpc/widget/list_view_operation.np.cxx
     src/rpc/widget/list_view_batch_operations.np.cxx
     src/rpc/widget/list_view_delete_operation.np.cxx
     src/rpc/widget/list_view_insert_operation.np.cxx
@@ -43,7 +44,6 @@ src_files=(
     src/rpc/widget/widget.np.cxx
     src/rpc/event/click_event.np.cxx
     src/application.cxx
-    src/window/window.cxx
     src/window/window_manager.cxx
     src/widget/widget_factory.cxx
     src/widget/text.cxx
@@ -93,6 +93,7 @@ for p in "${src_files[@]}"; do
 done
 
 $ar -rcs libgtkpoly.a *.o
+
 rm *.o
 
 popd

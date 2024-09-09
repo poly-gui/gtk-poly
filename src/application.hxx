@@ -1,11 +1,14 @@
 #ifndef GTKPOLY__SRC_APPLICATION_HXX
 #define GTKPOLY__SRC_APPLICATION_HXX
 
+#include "gtkmm/label.h"
+#include "nanopack/rpc.hxx"
 #include "rpc/native_layer_service.np.hxx"
 #include "rpc/portable_layer_service.np.hxx"
 #include "widget/widget_registry.hxx"
 #include <gtkpoly/application.hxx>
 #include <gtkpoly/window.hxx>
+#include <optional>
 
 namespace Poly {
 
@@ -17,6 +20,10 @@ class _Application : public Poly::Application,
 	ApplicationConfig config;
 	WindowManager window_manager;
 	WidgetRegistry _widget_registry;
+
+	std::optional<NanoPack::StandardIoChannel> rpc_channel;
+
+	std::mutex ui_mutex;
 
 	Rpc::PortableLayerServiceClient _portable_layer;
 	int portable_layer_pid;

@@ -3,7 +3,7 @@
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs?tag=24.05";
-    nanopack.url = "git+file:./lib/nanopack?ref=d83f8cf073ce94fb4904c84c986fe5e800a4936f&submodules=1";
+    nanopack.url = "git+file:./lib/nanopack?ref=036171d3a1c646a1d91591e5ce79b07b11c21932&submodules=1";
     nanoc.url = "github:nanopack-buffer/nanoc/main";
     nanoc-dev.url = "path:/home/kenneth/dev/nanopack/nanoc";
   };

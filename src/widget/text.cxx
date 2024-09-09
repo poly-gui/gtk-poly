@@ -1,17 +1,14 @@
-//
-// Created by kenym on 08/02/24.
-//
-
 #include "text.hxx"
 
 #include <glibmm/objectbase.h>
+#include <iostream>
 
 Poly::Text::Text(const Rpc::Text &msg)
-	: Glib::ObjectBase(typeid(Poly::Text)), Label(),
+	: Glib::ObjectBase(typeid(Poly::Text)), Label(msg.content),
 	  tag(msg.tag.has_value() ? *msg.tag : -1) {
 	set_halign(Gtk::Align::START);
 	set_valign(Gtk::Align::START);
-	set_text(msg.content);
+	std::cout << "text content" << msg.content << std::endl;
 }
 
 Glib::RefPtr<Poly::Text> Poly::Text::create(const Rpc::Text &msg) {

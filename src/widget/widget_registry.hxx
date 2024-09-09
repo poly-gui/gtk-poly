@@ -1,9 +1,5 @@
-//
-// Created by kenym on 10/02/24.
-//
-
-#ifndef GTKPOLY_WIDGET_REGISTRY_HXX
-#define GTKPOLY_WIDGET_REGISTRY_HXX
+#ifndef GTKPOLY__WIDGET_REGISTRY_HXX
+#define GTKPOLY__WIDGET_REGISTRY_HXX
 
 #include <cstdint>
 #include <gtkmm/widget.h>
@@ -13,14 +9,16 @@
 namespace Poly {
 
 class WidgetRegistry final {
-	std::unordered_map<int32_t, Glib::RefPtr<Gtk::Widget>> widgets;
+	std::unordered_map<uint32_t, Glib::RefPtr<Gtk::Widget>> widgets;
 
   public:
-	void register_widget(int32_t tag, const Glib::RefPtr<Gtk::Widget> &widget);
+	void register_widget(uint32_t tag, const Glib::RefPtr<Gtk::Widget> &widget);
+
+	void unregister_widget(uint32_t tag);
 
 	Glib::RefPtr<Gtk::Widget> find_widget(uint32_t tag);
 };
 
 } // namespace Poly
 
-#endif // GTKPOLY_WIDGET_REGISTRY_HXX
+#endif // GTKPOLY__WIDGET_REGISTRY_HXX

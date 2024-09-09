@@ -39,17 +39,17 @@
         "nixpkgs": "nixpkgs_3"
       },
       "locked": {
-        "lastModified": 1725487406,
-        "narHash": "sha256-gr6n9QgHu5OhmixxyTVz/kRVJXUl99Ht81iwKflQjTw=",
-        "ref": "d83f8cf073ce94fb4904c84c986fe5e800a4936f",
-        "rev": "d83f8cf073ce94fb4904c84c986fe5e800a4936f",
-        "revCount": 90,
+        "lastModified": 1725832685,
+        "narHash": "sha256-wF8vkabLZHXz5TyWx2SCWX4VKu/YnlwqUMFy+MJ6ywI=",
+        "ref": "5cd6e88650c104af4d92e66fc4adb3de110ccb5e",
+        "rev": "5cd6e88650c104af4d92e66fc4adb3de110ccb5e",
+        "revCount": 91,
         "submodules": true,
         "type": "git",
         "url": "file:./lib/nanopack"
       },
       "original": {
-        "ref": "d83f8cf073ce94fb4904c84c986fe5e800a4936f",
+        "ref": "5cd6e88650c104af4d92e66fc4adb3de110ccb5e",
         "submodules": true,
         "type": "git",
         "url": "file:./lib/nanopack"

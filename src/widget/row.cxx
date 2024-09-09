@@ -75,3 +75,13 @@ void Poly::Row::append(const Glib::RefPtr<Widget> &widget) {
 	}
 	append(*widget);
 }
+
+void Poly::Row::append_widget(const Glib::RefPtr<Gtk::Widget> &widget) {
+	append(widget);
+}
+
+void Poly::Row::insert_widget_before(
+	const Glib::RefPtr<Gtk::Widget> &widget,
+	const Glib::RefPtr<Gtk::Widget> &before_widget) {
+	widget->insert_before(*this, *before_widget);
+}

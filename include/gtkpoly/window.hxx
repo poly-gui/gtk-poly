@@ -6,24 +6,17 @@
 
 namespace Poly {
 
-class Window : public Gtk::Window {
-	std::shared_ptr<Widget> root_widget;
-
-  public:
-	using Gtk::Window::set_child;
-	void set_child(std::shared_ptr<Widget> widget);
-};
-
 class WindowManager {
   private:
-	std::unordered_map<std::string, std::shared_ptr<Window>> windows;
+	std::unordered_map<std::string, std::shared_ptr<Gtk::Window>> windows;
 
   public:
 	size_t active_window_count() const;
 
-	std::shared_ptr<Window> new_window_with_tag(const std::string &tag);
+	std::shared_ptr<Gtk::Window> new_window_with_tag(const std::string &tag);
 
-	std::shared_ptr<Window> find_window_with_tag(const std::string &tag) const;
+	std::shared_ptr<Gtk::Window>
+	find_window_with_tag(const std::string &tag) const;
 
 	void remove_window_by_tag(const std::string &tag);
 };
