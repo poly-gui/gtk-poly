@@ -138,7 +138,8 @@ void Poly::ListView::bind_list_item(
 	const uint32_t item_tag = entry->second;
 
 	app->portable_layer()
-		.invoke_callback(on_bind, std::make_unique<Rpc::ListViewItemConfig>(
-									  0, list_item->get_position(), item_tag))
+		.invoke_void_callback(on_bind,
+							  std::make_unique<Rpc::ListViewItemConfig>(
+								  0, list_item->get_position(), item_tag))
 		.get();
 }

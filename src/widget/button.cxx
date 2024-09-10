@@ -16,7 +16,7 @@ Poly::Button::Button(const Rpc::Button &button,
 	signal_clicked().connect(
 		[on_click_handle = this->on_click_handle, app = std::move(app)] {
 			const auto now = std::chrono::system_clock::now();
-			app->portable_layer().invoke_callback(
+			app->portable_layer().invoke_void_callback(
 				on_click_handle,
 				std::make_unique<Rpc::ClickEvent>(
 					std::chrono::duration_cast<std::chrono::seconds>(

@@ -14,7 +14,7 @@ Poly::TextField::TextField(const Rpc::TextField &text_field,
 	set_text(text_field.value);
 
 	signal_changed().connect([this, app = std::move(app)] {
-		app->portable_layer().invoke_callback(
+		app->portable_layer().invoke_void_callback(
 			on_value_changed_handle,
 			std::make_unique<Rpc::TextFieldChangedEvent>(get_text()));
 	});
