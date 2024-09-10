@@ -7,16 +7,15 @@ set -o errexit
 pushd "$(dirname $0)"
 
 for arg in "$@"; do declare $arg='1'; done
-
 if [ ! -v release ]; then debug=1; fi
 
-if [ ! -f ./lib/nanopack/build.sh ] && [ -z $IS_NIX ]; then
+if [ ! -f ./lib/nanopack/build.sh ] && [ ! -v nix ]; then
 	echo "getting submodules..."
 	git submodule update --init --recursive
 fi
 
 gtkmm_flags="$(pkg-config --cflags --libs gtkmm-4.0)"
-compiler="${CC:-clang}"
+compiler="${CC:-g++}"
 ar="${AR:-ar}"
 src_files=(
     src/rpc/nanopack_message_factory.np.cxx
@@ -59,8 +58,7 @@ src_files=(
 )
 
 # build dependencies
-if [ -z $IS_NIX ];
-then
+if [ ! -v nix ]; then
 	echo "building dependencies"
 	./lib/nanopack/build.sh
 else
@@ -76,6 +74,7 @@ fi
 echo "using ${compiler}."
 
 common_opts="-I../include -Wall -Wno-unused-variable --std=c++20 ${gtkmm_flags}"
+if [ ! -v nix ]; then common_opts="-I../lib/nanopack/include ${common_opts}"; fi
 debug_opts="--debug --optimize -DDEBUG ${common_opts}"
 release_opts="--optimize -DDEBUG=0 ${common_opts}"
 

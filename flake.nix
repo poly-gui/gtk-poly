@@ -47,7 +47,7 @@
                   pkgs.fontconfig
                   pkgs.gtkmm4
                 ];
-                buildPhase = "IS_NIX='1' bash ./build.sh";
+                buildPhase = "bash ./build.sh nix";
                 installPhase = "bash ./install.sh";
               };
 
